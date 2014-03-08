@@ -43,8 +43,10 @@ public class TopologicalSorting {
 			if (inDegree[i] == 0)
 				Q.offer(G.getVertexAt(i));
 		
+		int time = 0;
 		while (!Q.isEmpty()) {
 			Vertex v = Q.poll();
+			v.setTime(time++);
 			topsort.add(v);
 			for (Edge e : v.getEdges()) {
 				Vertex w = e.getTo();

@@ -16,6 +16,7 @@ public class Main {
 		
 		System.out.println(TopologicalSorting.TopologicalSortBFS(G));
 		System.out.println(Arrays.toString(LongestPath.LongestPathDP(G)));
+		System.out.println(Arrays.toString(LongestPath.LongestPathTimeForward(G, 2)));
 		
 		in.close();
 		System.exit(0);

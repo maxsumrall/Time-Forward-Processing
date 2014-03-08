@@ -1,7 +1,16 @@
 import java.util.*;
 
-public class Vertex {
+public class Vertex implements Comparable<Vertex> {
 	private int id;
+	private int time;
+	public int getTime() {
+		return time;
+	}
+
+	public void setTime(int time) {
+		this.time = time;
+	}
+
 	private ArrayList<Edge> edges;
 	
 	public int getId() {
@@ -26,6 +35,11 @@ public class Vertex {
 	}
 	
 	public String toString() {
-		return "" + id;
+		return "(" + id + ", " + time + ")";
+	}
+
+	@Override
+	public int compareTo(Vertex v) {
+		return this.time - v.time;
 	}
 }
