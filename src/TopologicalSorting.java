@@ -1,5 +1,9 @@
 import java.util.*;
 
+/**
+ * Implements both DFS and BFS topological sorting
+ * test
+ */
 public class TopologicalSorting {
 	private static boolean[] seen;
 	private static ArrayList<Vertex> topsort;
