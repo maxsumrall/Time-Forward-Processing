@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
-		Scanner in = new Scanner(new File("test.txt"));
+		Scanner in = new Scanner(new File("edges.txt"));
 		
 		int N = in.nextInt();
 		Graph G = new Graph(N);
