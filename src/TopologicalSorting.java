@@ -32,7 +32,12 @@ public class TopologicalSorting {
 		
 		return topsort;
 	}
-	
+
+    /**
+     * -----------------Does this really put the items in order in memory or does it swap pointers
+     * @param G
+     * @return
+     */
 	public static ArrayList<Vertex> TopologicalSortBFS(Graph G) {
 		int N = G.getSize();
 		Queue<Vertex> Q = new LinkedList<Vertex>();
@@ -51,7 +56,7 @@ public class TopologicalSorting {
 		while (!Q.isEmpty()) {
 			Vertex v = Q.poll();
 			v.setTime(time++);
-			topsort.add(v);
+			topsort.add(v.clone());
 			for (Edge e : v.getEdges()) {
 				Vertex w = e.getTo();
 				--inDegree[w.getId()];

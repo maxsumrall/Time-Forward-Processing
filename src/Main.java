@@ -13,6 +13,9 @@ public class Main {
 			
 			G.addEdge(u, v);
 		}
+
+         DataGenerator dg = new DataGenerator();
+        dg.GenerateData(10,0.5);
 		
 		System.out.println(TopologicalSorting.TopologicalSortBFS(G));
 		System.out.println(Arrays.toString(LongestPath.LongestPathDP(G)));

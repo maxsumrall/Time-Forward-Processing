@@ -3,7 +3,10 @@ import java.util.*;
 public class Vertex implements Comparable<Vertex> {
 	private int id;
 	private int time;
-	public int getTime() {
+    private ArrayList<Edge> edges;
+
+
+    public int getTime() {
 		return time;
 	}
 
@@ -11,8 +14,6 @@ public class Vertex implements Comparable<Vertex> {
 		this.time = time;
 	}
 
-	private ArrayList<Edge> edges;
-	
 	public int getId() {
 		return id;
 	}
