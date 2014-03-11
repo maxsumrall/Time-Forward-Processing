@@ -10,7 +10,7 @@ public class Graph {
 	}
 	
 	public void addEdge(int i, int j) {
-		this.getVertexAt(i).getEdges().add(new Edge(this.getVertexAt(j)));
+		this.getVertexAt(i).getEdges().add(new Edge(this.getVertexAt(j),this.getVertexAt(j).getId()));
 	}
 	
 	public int getSize() {

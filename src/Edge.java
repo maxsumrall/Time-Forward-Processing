@@ -1,7 +1,14 @@
 
 public class Edge {
-	private Vertex to;
-	
+    private Vertex to;
+    private int ID;
+	public Edge(Vertex to, int ID){
+        this.ID = ID;
+        this.to = to;
+    }
+    public Edge clone(){
+        return new Edge(this.to,this.ID);
+    }
 	public Vertex getTo() {
 		return to;
 	}
@@ -9,8 +16,11 @@ public class Edge {
 	public void setTo(Vertex to) {
 		this.to = to;
 	}
+    public int getID() {
+        return ID;
+    }
 
-	public Edge(Vertex to) {
-		this.to = to;
-	}
+    public void setID(int ID) {
+        this.ID = ID;
+    }
 }

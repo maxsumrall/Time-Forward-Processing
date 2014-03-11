@@ -56,9 +56,9 @@ public class TopologicalSorting {
 		while (!Q.isEmpty()) {
 			Vertex v = Q.poll();
 			v.setTime(time++);
-			topsort.add(v.clone());
+			topsort.add(v.clone());//Clone So that java does not just do pointer changes
 			for (Edge e : v.getEdges()) {
-				Vertex w = e.getTo();
+				Vertex w = G.getVertexAt(e.getID());//e.getTo();
 				--inDegree[w.getId()];
 				if (inDegree[w.getId()] == 0)
 					Q.offer(w);
