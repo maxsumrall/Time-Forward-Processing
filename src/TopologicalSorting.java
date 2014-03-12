@@ -67,4 +67,34 @@ public class TopologicalSorting {
 		
 		return topsort;
 	}
+
+    public static ArrayList<Vertex> TopologicalSortBFS_IOEfficient(Graph G) {
+        int N = G.getSize();
+        Queue<Vertex> Q = new LinkedList<Vertex>();
+        ArrayList<Vertex> topsort = new ArrayList<Vertex>();
+        int[] inDegree = new int[N];
+
+        for (int i = 0; i < N; ++i)
+            for (Edge e : G.getVertexAt(i).getEdges())
+                ++inDegree[e.getTo().getId()];
+
+        for (int i = 0; i < N; ++i)
+            if (inDegree[i] == 0)
+                Q.offer(G.getVertexAt(i));
+
+        int time = 0;
+        while (!Q.isEmpty()) {
+            Vertex v = Q.poll();
+            v.setTime(time++);
+            topsort.add(v.clone());//Clone So that java does not just do pointer changes
+            for (Edge e : v.getEdges()) {
+                Vertex w = G.getVertexAt(e.getID());//e.getTo();
+                --inDegree[w.getId()];
+                if (inDegree[w.getId()] == 0)
+                    Q.offer(w);
+            }
+        }
+
+        return topsort;
+    }
 }

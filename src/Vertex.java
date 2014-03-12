@@ -12,7 +12,7 @@ public class Vertex implements Comparable<Vertex> {
 
     public Vertex(int id, int time, ArrayList<Edge> edges){
         this.id = id;
-        this.time = time;
+        this.time = time; //QUESTION: is this supposed to represent the absolute ordering?
         this.edges = edges;
     }
 
