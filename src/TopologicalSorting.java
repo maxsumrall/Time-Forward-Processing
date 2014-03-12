@@ -43,7 +43,7 @@ public class TopologicalSorting {
 		Queue<Vertex> Q = new LinkedList<Vertex>();
 		ArrayList<Vertex> topsort = new ArrayList<Vertex>();
 		int[] inDegree = new int[N];
-		
+
 		for (int i = 0; i < N; ++i)
 			for (Edge e : G.getVertexAt(i).getEdges())
 				++inDegree[e.getTo().getId()];

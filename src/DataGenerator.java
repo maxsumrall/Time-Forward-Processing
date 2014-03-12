@@ -12,31 +12,35 @@ import java.io.*;
 import java.nio.*;
 
 public class DataGenerator {
-    int n = 10;
-    double alpha = 0.5;
 
     MappedByteBuffer buffer;
     FileChannel fc;
-    File file = new File("genData.dat");
+    File file;
 
-    public DataGenerator(){
+
+    /**
+     * Opens a file, gets the channel, makes a memorymappedbuffer over this channel,
+     * writes bytes to this buffer using the buffers putInt method,
+     * and finally flushes everything to disk, and closes
+     * @param n
+     * @param alpha
+     */
+    public void GenerateData(int n, double alpha){
+        file = new File("genData" + Integer.toString(n) + ".dat");
+        long bytesNeeded  = (n*8*3)+8;//how large to make the buffer, will be IN MEMORY
         try{
             this.fc = new RandomAccessFile(this.file, "rw").getChannel();
-            this.buffer = fc.map(FileChannel.MapMode.READ_WRITE,0,(int) fc.size());
+            this.buffer = fc.map(FileChannel.MapMode.READ_WRITE,0,bytesNeeded);
             this.buffer.putInt(n);//the first int will be the number of vertices
         }
         catch(IOException e){
             System.out.println("IO Problem " + e.getMessage());
         }
-    }
-
-    public void GenerateData(int n, double alpha){
         int span = 0;
         int origin = 0;
-        int V = 2;//NOOOO this is just temp
-        for(int i=n; i< 3*n; i++){
-            span = (int) Math.ceil((1 - Math.pow(Math.random(), this.alpha)) * (V - 1));
-            origin = (int) Math.floor(Math.random() * (V - span));
+        for(int i=0; i < 3*n; i++){
+            span = (int) Math.ceil((1 - Math.pow(Math.random(), alpha)) * (n - 1));
+            origin = (int) Math.floor(Math.random() * (n - span));
             this.newEdge(origin,origin+span);
         }
         //Done with generating and writing data, close everything.
@@ -55,6 +59,7 @@ public class DataGenerator {
      */
     private void newEdge(int i, int j){
         if (this.buffer != null){
+            //System.out.println(Integer.toString(i) + " " + Integer.toString(j));
             this.buffer.putInt(i);
             this.buffer.putInt(j);
         }
