@@ -38,6 +38,7 @@ public class Main {
         File edgesFile = new File("edgeData40.dat");
         IOSort sorter = new IOSort(edgesFile);
         sorter.sortSegments();
+        sorter.mergeSort();
 
 
     }
