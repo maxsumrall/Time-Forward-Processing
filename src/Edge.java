@@ -1,5 +1,5 @@
 
-public class Edge {
+public class Edge implements Comparable<Edge> {
     private Vertex to;
     private int ID;
 	public Edge(Vertex to, int ID){
@@ -23,4 +23,10 @@ public class Edge {
     public void setID(int ID) {
         this.ID = ID;
     }
+
+    public int compareTo(Edge e){
+        return this.ID - e.ID;
+    }
 }
+
+
