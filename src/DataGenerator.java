@@ -26,8 +26,8 @@ public class DataGenerator {
      * @param alpha
      */
     public void GenerateData(int n, double alpha){
-        file = new File("genData" + Integer.toString(n) + ".dat");
-        long bytesNeeded  = (n*8*3)+8;//how large to make the buffer, will be IN MEMORY
+        file = new File("edgeData" + Integer.toString(n) + ".dat");
+        long bytesNeeded  = (n*4*2*3)+8;//how large to make the buffer
         try{
             this.fc = new RandomAccessFile(this.file, "rw").getChannel();
             this.buffer = fc.map(FileChannel.MapMode.READ_WRITE,0,bytesNeeded);

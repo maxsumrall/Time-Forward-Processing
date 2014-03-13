@@ -68,7 +68,7 @@ public class TopologicalSorting {
 		return topsort;
 	}
 
-    public static ArrayList<Vertex> TopologicalSortBFS_IOEfficient(Graph G) {
+    public static ArrayList<Vertex> TopologicalSortBFS_IO(Graph G) {
         int N = G.getSize();
         Queue<Vertex> Q = new LinkedList<Vertex>();
         ArrayList<Vertex> topsort = new ArrayList<Vertex>();
