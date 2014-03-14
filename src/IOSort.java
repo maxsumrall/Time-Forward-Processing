@@ -13,19 +13,26 @@ public class IOSort {
      */
     MappedByteBuffer edgesBuffer;
     FileChannel edgesFileChannel;
+    RandomAccessFile RAFile;
+    File edgesFile;
     int smallestSubsetSize = 8; //how many edges to sort in-memory. NUMBER OF EDGES!
-    long edgesInFile;
+    long EDGES_IN_FILE;
+    long BYTES_IN_FILE;
+    int N;      //the first number in the input file of edges
     long edgesBufferSize;
     IOSort(File edgesFile){
         //Open the file containing the edges for reading only.
+        this.edgesFile = edgesFile;
         ByteBuffer tempBuffer = ByteBuffer.allocate(8);
         try{
-            this.edgesFileChannel = new RandomAccessFile(edgesFile,"rw").getChannel();
-            this.edgesInFile = this.edgesFileChannel.size()/8;//divide by 8 because thats how many bytes there are per edge, and thats what I want to know
+            this.RAFile = new RandomAccessFile(edgesFile,"rw");
+            this.edgesFileChannel = this.RAFile.getChannel();
+            this.BYTES_IN_FILE = this.edgesFileChannel.size();
+            this.EDGES_IN_FILE = this.edgesFileChannel.size()/8;//divide by 8 because thats how many bytes there are per edge, and thats what I want to know
             edgesFileChannel.read(tempBuffer);  //read the first number from the file
             tempBuffer.flip();
-            int n = tempBuffer.getInt() + tempBuffer.getInt();   //remember the padding which makes the first one 8 bytes.
-            edgesBufferSize =  (n*3*2*4);
+            N = tempBuffer.getInt() + tempBuffer.getInt();   //remember the padding which makes the first one 8 bytes.
+            edgesBufferSize =  (N*3*2*4);
             this.edgesBuffer = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE, 8, edgesBufferSize); //Prepared to handle huge number of edges without consuming heap space
         }
         catch (IOException e){e.printStackTrace();}
@@ -43,6 +50,7 @@ public class IOSort {
             }
             edgesBuffer.reset();
             Collections.sort(temp);
+            System.out.println(temp);
             for (IOEdge e: temp){
                 edgesBuffer.putInt(e.getID());
                 edgesBuffer.putInt(e.getTo());
@@ -73,57 +81,72 @@ public class IOSort {
     public void mergeSort(){
 
         int subsetSize = smallestSubsetSize*8;
-        int currentIndex = 0;
-        int P;//P and Q are location indices into the two sets I will merge[sort]
-        int Q;
+        int currentIndex = 8;
+        FileChannel P;//P and Q are location indices into the two sets I will merge[sort]
+        FileChannel Q;
+        MappedByteBuffer PBuffer;
+        MappedByteBuffer QBuffer;
+        RandomAccessFile rTempFile;
+        RandomAccessFile rTempFileP;
+        RandomAccessFile rTempFileQ;
         //make two maps over the file channel, one for each subset which will be merged.
         // File = [<------P------>|<------Q------>|....................]
 
         //Make an intermediary file/buffer to move the merged copies to.
-        MappedByteBuffer B;
+        MappedByteBuffer temp;
         File tempFile = new File("temp.dat");
         FileChannel tempFileChannel;
        try{
-        RandomAccessFile rTempFile = new RandomAccessFile(tempFile,"rw");
-        tempFileChannel = rTempFile.getChannel();
+            rTempFile = new RandomAccessFile(tempFile,"rw");
+            rTempFileP = new RandomAccessFile(this.edgesFile,"rw");
+            rTempFileQ = new RandomAccessFile(this.edgesFile,"rw");
+            tempFileChannel = rTempFile.getChannel();
+            P = rTempFileP.getChannel().position(0);
+            Q = rTempFileQ.getChannel().position(0);
        }
         catch(IOException e){e.printStackTrace();return;}
-        while(subsetSize < edgesInFile){
-            System.out.println(subsetSize/8);
-                while(currentIndex+ 2*subsetSize < (this.edgesInFile*8)){
+
+        while(subsetSize < EDGES_IN_FILE){//continue until the current size of groups to merge is the size of the whole file
+            while(currentIndex + 2*subsetSize < (this.BYTES_IN_FILE)){
+                System.out.println("P: "+currentIndex +", " + (currentIndex + subsetSize));
+                System.out.println("Q: "+(currentIndex + subsetSize) +", " + (currentIndex + 2*subsetSize));
+
                 try{
-                    this.edgesFileChannel.position(8);
-                    B = tempFileChannel.map(FileChannel.MapMode.READ_WRITE,0,this.edgesBufferSize);  //size of the original buffer
-                    //P = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE,currentIndex,currentIndex+subsetSize);
-                    //Q = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, currentIndex + 2*subsetSize);
+                    PBuffer = P.map(FileChannel.MapMode.READ_WRITE,currentIndex,subsetSize);
+                    QBuffer = Q.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, subsetSize);
+                    temp = tempFileChannel.map(FileChannel.MapMode.READ_WRITE,0,this.edgesBufferSize);  //size of the original buffer
+                }catch (IOException e){e.printStackTrace(); return;}
+                int x = PBuffer.getInt();
+                int y = QBuffer.getInt();
 
-                }
-                catch (IOException e){e.printStackTrace(); return;}
-                int x = P.getInt();
-                int y = Q.getInt();
+                while(PBuffer.hasRemaining() && QBuffer.hasRemaining()){
+                    System.out.println(x+ " <--x, y-->"+y);
 
-                while(P.hasRemaining() && Q.hasRemaining()){
                     if (x < y){
-                        B.putInt(x);
-                        B.putInt(P.getInt());//put both the values for the edge
-                        x = P.getInt();
+                        temp.putInt(x);
+                        temp.putInt(PBuffer.getInt());//put both the values for the edge
+                        x = PBuffer.getInt();
                     }
                     else{
-                        B.putInt(y);
-                        B.putInt(Q.getInt());
-                        y = Q.getInt();}
+                        temp.putInt(y);
+                        temp.putInt(QBuffer.getInt());
+                        y = QBuffer.getInt();}
                 }
                 //Either P or Q has been emptied, so the other one with remaining elements should be dumped into B
-                while (P.hasRemaining()){B.putInt(P.getInt());}
-                while(Q.hasRemaining()){B.putInt(Q.getInt());}
+                while (PBuffer.hasRemaining()){temp.putInt(PBuffer.getInt());}
+                while(QBuffer.hasRemaining()){temp.putInt(QBuffer.getInt());}
 
                 currentIndex += 2*subsetSize;
+                try{
+                    P.position(0);
+                    Q.position(0);
+                }catch(IOException e){e.printStackTrace();return;}
             }
             subsetSize = subsetSize * 2; //merge done, repeat for larger subset sizes until all merges are done.
             //The merges are done in B, So I need to swap B's channel and the main channel
-            FileChannel temp = tempFileChannel;
-            tempFileChannel = this.edgesFileChannel;
-            this.edgesFileChannel = temp;
+            RandomAccessFile swap = rTempFile;
+            rTempFile = this.RAFile;
+            this.RAFile = swap;
         }
     }
 }
