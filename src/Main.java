@@ -5,7 +5,7 @@ import java.nio.channels.FileChannel;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        int n = 40;
+        int n = 400;
         double alpha = 0.5;
         DataGenerator dg = new DataGenerator();
         dg.GenerateData(n,alpha);

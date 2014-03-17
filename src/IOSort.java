@@ -15,7 +15,7 @@ public class IOSort {
     FileChannel edgesFileChannel;
     RandomAccessFile RAFile;
     File edgesFile;
-    int smallestSubsetSize = 4; //how many edges to sort in-memory. NUMBER OF EDGES!
+    int smallestSubsetSize = 8; //how many edges to sort in-memory. NUMBER OF EDGES!
     long EDGES_IN_FILE;
     long BYTES_IN_FILE;
     int N;      //the first number in the input file of edges
@@ -27,13 +27,13 @@ public class IOSort {
         try{
             this.RAFile = new RandomAccessFile(edgesFile,"rw");
             this.edgesFileChannel = this.RAFile.getChannel();
-            this.BYTES_IN_FILE = this.edgesFileChannel.size();
+            this.BYTES_IN_FILE = this.RAFile.length();
             this.EDGES_IN_FILE = this.edgesFileChannel.size()/8;//divide by 8 because thats how many bytes there are per edge, and thats what I want to know
             edgesFileChannel.read(tempBuffer);  //read the first number from the file
             tempBuffer.flip();
             N = tempBuffer.getInt() + tempBuffer.getInt();   //remember the padding which makes the first one 8 bytes.
-            edgesBufferSize =  (N*3*2*4+8);
-            this.edgesBuffer = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, edgesBufferSize); //Prepared to handle huge number of edges without consuming heap space
+            this.edgesBufferSize =  (N*3*2*4+8);
+            this.edgesBuffer = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, this.edgesFileChannel.size()); //Prepared to handle huge number of edges without consuming heap space
         }
         catch (IOException e){e.printStackTrace();}
 
@@ -41,23 +41,23 @@ public class IOSort {
     public void sortSegments(){
 
         ArrayList<IOEdge> temp = new ArrayList<IOEdge>();
-        int count = edgesBuffer.remaining();
-        int bytesPerSubset = smallestSubsetSize*8;//an edge is two ints, which are 4 bytes
+        int count = this.edgesBuffer.remaining();
+        int bytesPerSubset = this.smallestSubsetSize*8;//an edge is two ints, which are 4 bytes
         for (int i = 0; i < count; i+=bytesPerSubset){//for each subset...
-            edgesBuffer.mark();
-            for(int j = 0; (j < smallestSubsetSize) && (edgesBuffer.remaining() > 8); j++){
-                temp.add(new IOEdge(edgesBuffer.getInt(),edgesBuffer.getInt()));
+            this.edgesBuffer.mark();
+            for(int j = 0; (j < smallestSubsetSize) && (this.edgesBuffer.remaining() > 8); j++){
+                temp.add(new IOEdge(this.edgesBuffer.getInt(),this.edgesBuffer.getInt()));
             }
-            edgesBuffer.reset();
+            this.edgesBuffer.reset();
             Collections.sort(temp);
-            //System.out.println(temp);
+            System.out.println(temp);
             for (IOEdge e: temp){
-                edgesBuffer.putInt(e.getID());
-                edgesBuffer.putInt(e.getTo());
+                this.edgesBuffer.putInt(e.getID());
+                this.edgesBuffer.putInt(e.getTo());
             }
          temp.clear();
         }
-       edgesBuffer.force();
+       this.edgesBuffer.force();
     }
 
 
@@ -127,21 +127,17 @@ public class IOSort {
         System.out.println("Bytes in file:" + this.BYTES_IN_FILE);
 
 
-        while(subsetSize < BYTES_IN_FILE){//continue until the current size of groups to merge is the size of the whole file
+        while(subsetSize < this.BYTES_IN_FILE){//continue until the current size of groups to merge is the size of the whole file
             //System.out.println("subsetSize: " + subsetSize + ", BytesinFile: " + BYTES_IN_FILE);
             //temp = tempFileChannel.map(FileChannel.MapMode.READ_WRITE,0,this.edgesFileChannel.size());  //size of the original buffer
             temp.position(0);
             //printData(40);
-            while(currentIndex + 2*subsetSize < (this.BYTES_IN_FILE)){
+            for(int i = 0; i < Math.ceil((this.BYTES_IN_FILE/subsetSize)/2); i++){
                 //System.out.println("inner loop: " + currentIndex + 2*subsetSize);
                 System.out.println("P: "+currentIndex +", " + subsetSize);
                 System.out.println("Q: "+(currentIndex + subsetSize) +", " + subsetSize);
-                //rTempFileP = new RandomAccessFile(this.edgesFile,"rw");
-                //rTempFileQ = new RandomAccessFile(this.edgesFile,"rw");
-                //P = rTempFileP.getChannel();
-                //Q = rTempFileQ.getChannel();
                 PBuffer = P.map(FileChannel.MapMode.READ_WRITE,currentIndex,subsetSize);
-                QBuffer = Q.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, subsetSize);
+                QBuffer = Q.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, Math.abs(Math.min(subsetSize,this.BYTES_IN_FILE-(currentIndex+subsetSize))));
                 int x = PBuffer.getInt();
                 int y = QBuffer.getInt();
 
@@ -183,33 +179,15 @@ public class IOSort {
             this.edgesFileChannel.transferFrom(tempFileChannel, 0, tempFileChannel.size());
             this.edgesFileChannel.force(true);
 
-
-            /*if(flip){
-                flip = false;
-                rTempFile = new RandomAccessFile(this.edgesFile,"rw");
-                rTempFileP = new RandomAccessFile(tempFile,"rw");
-                rTempFileQ = new RandomAccessFile(tempFile,"rw");
-                tempFileChannel = rTempFile.getChannel();
-                P = rTempFileP.getChannel();
-                Q = rTempFileQ.getChannel();
-            }
-            else{
-                flip = true;
-                rTempFile = new RandomAccessFile(tempFile,"rw");
-                rTempFileP = new RandomAccessFile(this.edgesFile,"rw");
-                rTempFileQ = new RandomAccessFile(this.edgesFile,"rw");
-                tempFileChannel = rTempFile.getChannel();
-                P = rTempFileP.getChannel();
-                Q = rTempFileQ.getChannel(); */
-             
             rTempFile.seek(0);
             rTempFileP.seek(0);
             rTempFileQ.seek(0);
             P.position(0);
             Q.position(0);
-            tempFileChannel.position(0);
 
         }
+
+        tempFile.delete();
     }
 }
 
