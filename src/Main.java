@@ -7,9 +7,9 @@ public class Main {
     public static void main(String[] args) throws IOException {
         // 80000000 is about as big as this implementation can handle;
         int n = 50000000;
-        double alpha = 0.5;
-        DataGenerator dg = new DataGenerator();
-        dg.GenerateData(n,alpha);
+        //double alpha = 0.5;
+        //DataGenerator dg = new DataGenerator();
+        //dg.GenerateData(n,alpha);
         try{
             IOVersion(n);
         }

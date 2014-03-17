@@ -15,7 +15,7 @@ public class IOSort {
     FileChannel edgesFileChannel;
     RandomAccessFile RAFile;
     File edgesFile;
-    int smallestSubsetSize = 2; //how many edges to sort in-memory. NUMBER OF EDGES!
+    int smallestSubsetSize = 2000000; //how many edges to sort in-memory. NUMBER OF EDGES!
     long EDGES_IN_FILE;
     long BYTES_IN_FILE;
     int N;      //the first number in the input file of edges
@@ -128,6 +128,7 @@ public class IOSort {
 
 
         while(subsetSize < this.BYTES_IN_FILE){//continue until the current size of groups to merge is the size of the whole file
+            System.out.println(this.BYTES_IN_FILE/subsetSize);
             //System.out.println("subsetSize: " + subsetSize + ", BytesinFile: " + BYTES_IN_FILE);
             //temp = tempFileChannel.map(FileChannel.MapMode.READ_WRITE,0,this.edgesFileChannel.size());  //size of the original buffer
             temp.position(0);
