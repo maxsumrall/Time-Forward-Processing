@@ -3,13 +3,14 @@ import java.io.*;
 import java.nio.*;
 import java.nio.channels.FileChannel;
 public class Main {
-	public static void main(String[] args) throws IOException {
-        //int n = 40;
-        //double alpha = 0.5;
-        //DataGenerator dg = new DataGenerator();
-        //dg.GenerateData(n,alpha);
+
+    public static void main(String[] args) throws IOException {
+        int n = 40;
+        double alpha = 0.5;
+        DataGenerator dg = new DataGenerator();
+        dg.GenerateData(n,alpha);
         try{
-            IOVersion();
+            IOVersion(n);
         }
         catch (Exception e){e.printStackTrace(); }
 		/*Scanner in = new Scanner(new File("edges.txt"));
@@ -34,12 +35,26 @@ public class Main {
 		*/
 		System.exit(0);
 	}
-    public static void IOVersion() throws Exception{
-        File edgesFile = new File("edgeData40.dat");
+    public static void IOVersion(int n) throws Exception{
+        File edgesFile = new File("edgeData"+ n + ".dat");
+        //printData(edgesFile);
         IOSort sorter = new IOSort(edgesFile);
         sorter.sortSegments();
         sorter.mergeSort();
 
+        //printData(new File("temp.dat"),n);
 
+
+    }
+    public static void printData(File file,int n) throws IOException{
+        RandomAccessFile in = new RandomAccessFile("edgeData" + n + ".dat","r");
+        FileChannel fc = in.getChannel();
+        int i = 0;
+        MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY,0,fc.size());
+        while(mbb.hasRemaining()){
+
+            System.out.println(i++ + ": " + mbb.getInt() + ", " + mbb.getInt());
+        }
+        System.out.println("-----------");
     }
 }

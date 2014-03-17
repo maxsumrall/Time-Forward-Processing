@@ -50,13 +50,14 @@ public class IOSort {
             }
             edgesBuffer.reset();
             Collections.sort(temp);
-            System.out.println(temp);
+            //System.out.println(temp);
             for (IOEdge e: temp){
                 edgesBuffer.putInt(e.getID());
                 edgesBuffer.putInt(e.getTo());
             }
          temp.clear();
         }
+       edgesBuffer.force();
     }
 
     /**
@@ -78,10 +79,10 @@ public class IOSort {
      * Swap EDGES and TEMP, double the size of the subsections, and repeat until the size of the subsections is the size of the full buffer.
      * Make sure you get EDGES and TEMP swapped back or something.
      */
-    public void mergeSort(){
+    public void mergeSort() throws IOException{
 
-        int subsetSize = smallestSubsetSize*8;
-        int currentIndex = 8;
+        int subsetSize = smallestSubsetSize*8;  //bytes
+        int currentIndex = 0;     //bytes?  the 8 means I skip the first guy
         FileChannel P;//P and Q are location indices into the two sets I will merge[sort]
         FileChannel Q;
         MappedByteBuffer PBuffer;
@@ -89,6 +90,7 @@ public class IOSort {
         RandomAccessFile rTempFile;
         RandomAccessFile rTempFileP;
         RandomAccessFile rTempFileQ;
+        boolean flip = true;
         //make two maps over the file channel, one for each subset which will be merged.
         // File = [<------P------>|<------Q------>|....................]
 
@@ -101,52 +103,79 @@ public class IOSort {
             rTempFileP = new RandomAccessFile(this.edgesFile,"rw");
             rTempFileQ = new RandomAccessFile(this.edgesFile,"rw");
             tempFileChannel = rTempFile.getChannel();
-            P = rTempFileP.getChannel().position(0);
-            Q = rTempFileQ.getChannel().position(0);
+            P = rTempFileP.getChannel();
+            Q = rTempFileQ.getChannel();
        }
         catch(IOException e){e.printStackTrace();return;}
 
-        while(subsetSize < EDGES_IN_FILE){//continue until the current size of groups to merge is the size of the whole file
+        while(subsetSize < BYTES_IN_FILE){//continue until the current size of groups to merge is the size of the whole file
+            //System.out.println("subsetSize: " + subsetSize + ", BytesinFile: " + BYTES_IN_FILE);
+            temp = tempFileChannel.map(FileChannel.MapMode.READ_WRITE,0,this.edgesFileChannel.size());  //size of the original buffer
             while(currentIndex + 2*subsetSize < (this.BYTES_IN_FILE)){
-                System.out.println("P: "+currentIndex +", " + (currentIndex + subsetSize));
-                System.out.println("Q: "+(currentIndex + subsetSize) +", " + (currentIndex + 2*subsetSize));
-
-                try{
-                    PBuffer = P.map(FileChannel.MapMode.READ_WRITE,currentIndex,subsetSize);
-                    QBuffer = Q.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, subsetSize);
-                    temp = tempFileChannel.map(FileChannel.MapMode.READ_WRITE,0,this.edgesBufferSize);  //size of the original buffer
-                }catch (IOException e){e.printStackTrace(); return;}
+                //System.out.println("P: "+currentIndex +", " + (currentIndex + subsetSize));
+                //System.out.println("Q: "+(currentIndex + subsetSize) +", " + (currentIndex + 2*subsetSize));
+                PBuffer = P.map(FileChannel.MapMode.READ_WRITE,currentIndex,subsetSize);
+                QBuffer = Q.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, subsetSize);
                 int x = PBuffer.getInt();
                 int y = QBuffer.getInt();
 
                 while(PBuffer.hasRemaining() && QBuffer.hasRemaining()){
-                    System.out.println(x+ " <--x, y-->"+y);
+                    //System.out.println(x+ " <--x, y-->"+y);
 
                     if (x < y){
                         temp.putInt(x);
                         temp.putInt(PBuffer.getInt());//put both the values for the edge
-                        x = PBuffer.getInt();
+                        if(PBuffer.hasRemaining()){x = PBuffer.getInt();}
                     }
                     else{
                         temp.putInt(y);
                         temp.putInt(QBuffer.getInt());
-                        y = QBuffer.getInt();}
+                        if (QBuffer.hasRemaining()){y = QBuffer.getInt();}
+                    }
                 }
                 //Either P or Q has been emptied, so the other one with remaining elements should be dumped into B
                 while (PBuffer.hasRemaining()){temp.putInt(PBuffer.getInt());}
                 while(QBuffer.hasRemaining()){temp.putInt(QBuffer.getInt());}
 
                 currentIndex += 2*subsetSize;
-                try{
-                    P.position(0);
-                    Q.position(0);
-                }catch(IOException e){e.printStackTrace();return;}
+                P.position(0); // put the channels back to 0
+                Q.position(0);
+                PBuffer.force();
+                QBuffer.force();
+                temp.force();
             }
+            P.position(0);
+            Q.position(0);
+            temp.position(0);
+            //PBuffer.position(0);
+            currentIndex = 0;
             subsetSize = subsetSize * 2; //merge done, repeat for larger subset sizes until all merges are done.
-            //The merges are done in B, So I need to swap B's channel and the main channel
-            RandomAccessFile swap = rTempFile;
-            rTempFile = this.RAFile;
-            this.RAFile = swap;
+            //Everything from P and Q were merged into temp, now I need to setup these files to merge again
+
+            if(flip){
+                flip = false;
+                rTempFile = new RandomAccessFile(this.edgesFile,"rw");
+                rTempFileP = new RandomAccessFile(tempFile,"rw");
+                rTempFileQ = new RandomAccessFile(tempFile,"rw");
+                tempFileChannel = rTempFile.getChannel();
+                P = rTempFileP.getChannel();
+                Q = rTempFileQ.getChannel();
+            }
+            else{
+                flip = true;
+                rTempFile = new RandomAccessFile(tempFile,"rw");
+                rTempFileP = new RandomAccessFile(this.edgesFile,"rw");
+                rTempFileQ = new RandomAccessFile(this.edgesFile,"rw");
+                tempFileChannel = rTempFile.getChannel();
+                P = rTempFileP.getChannel();
+                Q = rTempFileQ.getChannel();
+            }
+            rTempFile.seek(0);
+            rTempFileP.seek(0);
+            rTempFileQ.seek(0);
+            P.position(0);
+            Q.position(0);
+            tempFileChannel.position(0);
         }
     }
 }
