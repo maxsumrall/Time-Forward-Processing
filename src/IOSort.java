@@ -15,7 +15,7 @@ public class IOSort {
     FileChannel edgesFileChannel;
     RandomAccessFile RAFile;
     File edgesFile;
-    int smallestSubsetSize = 8; //how many edges to sort in-memory. NUMBER OF EDGES!
+    int smallestSubsetSize = 2; //how many edges to sort in-memory. NUMBER OF EDGES!
     long EDGES_IN_FILE;
     long BYTES_IN_FILE;
     int N;      //the first number in the input file of edges
@@ -50,7 +50,7 @@ public class IOSort {
             }
             this.edgesBuffer.reset();
             Collections.sort(temp);
-            System.out.println(temp);
+            //System.out.println(temp);
             for (IOEdge e: temp){
                 this.edgesBuffer.putInt(e.getID());
                 this.edgesBuffer.putInt(e.getTo());
@@ -124,7 +124,7 @@ public class IOSort {
         catch(IOException e){e.printStackTrace();return;}
 
         //debug
-        System.out.println("Bytes in file:" + this.BYTES_IN_FILE);
+        //System.out.println("Bytes in file:" + this.BYTES_IN_FILE);
 
 
         while(subsetSize < this.BYTES_IN_FILE){//continue until the current size of groups to merge is the size of the whole file
@@ -133,11 +133,15 @@ public class IOSort {
             temp.position(0);
             //printData(40);
             for(int i = 0; i < Math.ceil((this.BYTES_IN_FILE/subsetSize)/2); i++){
+                //System.out.println(this.BYTES_IN_FILE + ": " + subsetSize);
+
                 //System.out.println("inner loop: " + currentIndex + 2*subsetSize);
-                System.out.println("P: "+currentIndex +", " + subsetSize);
-                System.out.println("Q: "+(currentIndex + subsetSize) +", " + subsetSize);
+                //System.out.println("P: "+currentIndex +", " + subsetSize);
+                //System.out.println("Q: "+(currentIndex + subsetSize) +", " + subsetSize);
                 PBuffer = P.map(FileChannel.MapMode.READ_WRITE,currentIndex,subsetSize);
-                QBuffer = Q.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, Math.abs(Math.min(subsetSize,this.BYTES_IN_FILE-(currentIndex+subsetSize))));
+                QBuffer = Q.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, subsetSize);
+
+
                 int x = PBuffer.getInt();
                 int y = QBuffer.getInt();
 
@@ -147,19 +151,19 @@ public class IOSort {
                     if (x < y){
                         temp.putInt(x);
                         temp.putInt(PBuffer.getInt());//put both the values for the edge
-                        System.out.print(x + ", ");
+                        //System.out.print(x + ", ");
                         if(PBuffer.hasRemaining()){x = PBuffer.getInt();}
                         else{temp.putInt(y);}
                     }
                     else{
                         temp.putInt(y);
                         temp.putInt(QBuffer.getInt());
-                        System.out.print(y+ ", ");
+                        //System.out.print(y+ ", ");
                         if (QBuffer.hasRemaining()){y = QBuffer.getInt();}
                         else{temp.putInt(x);}
                     }
                 }
-                System.out.println("---");
+                //System.out.println("---");
                 //Either P or Q has been emptied, so the other one with remaining elements should be dumped into B
                 while (PBuffer.hasRemaining()){temp.putInt(PBuffer.getInt());}
                 while(QBuffer.hasRemaining()){temp.putInt(QBuffer.getInt());}
@@ -167,6 +171,47 @@ public class IOSort {
                 QBuffer.force();
                 currentIndex += 2*subsetSize;
 
+            }
+            /**
+             * Two cases: Data not yet sorted is less than 1 subset, or data left is more than 1 subset but less than 2
+             */
+            if((this.BYTES_IN_FILE - currentIndex) <= subsetSize){
+                //less than one subset, should already be in order so we can just copy
+                //tempFileChannel.transferFrom(P,tempFileChannel.position(),this.BYTES_IN_FILE-currentIndex);
+                PBuffer = P.map(FileChannel.MapMode.READ_WRITE,currentIndex,this.BYTES_IN_FILE-currentIndex);
+                while(PBuffer.hasRemaining()){temp.putInt(PBuffer.getInt());}
+
+
+            }
+            else{
+                //more than 1 but less than 2, can do sort but with smaller Q buffer sizes
+                PBuffer = P.map(FileChannel.MapMode.READ_WRITE,currentIndex,subsetSize);
+                QBuffer = Q.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, this.BYTES_IN_FILE - currentIndex - subsetSize);
+
+
+                int x = PBuffer.getInt();
+                int y = QBuffer.getInt();
+
+                while(PBuffer.hasRemaining() && QBuffer.hasRemaining()){
+                    //System.out.println(x+ " <--x, y-->"+y);
+
+                    if (x < y){
+                        temp.putInt(x);
+                        temp.putInt(PBuffer.getInt());//put both the values for the edge
+                        if(PBuffer.hasRemaining()){x = PBuffer.getInt();}
+                        else{temp.putInt(y);}
+                    }
+                    else{
+                        temp.putInt(y);
+                        temp.putInt(QBuffer.getInt());
+                        if (QBuffer.hasRemaining()){y = QBuffer.getInt();}
+                        else{temp.putInt(x);}
+                    }
+                }
+                while (PBuffer.hasRemaining()){temp.putInt(PBuffer.getInt());}
+                while(QBuffer.hasRemaining()){temp.putInt(QBuffer.getInt());}
+                PBuffer.force();
+                QBuffer.force();
             }
 
             currentIndex = 0;
@@ -187,7 +232,6 @@ public class IOSort {
 
         }
 
-        tempFile.delete();
-    }
-}
+    tempFile.delete();
+}   }
 

@@ -43,6 +43,7 @@ public class Main {
         sorter.mergeSort();
 
         printData(n);
+        edgesFile.delete();
 
 
     }
