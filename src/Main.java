@@ -42,11 +42,11 @@ public class Main {
         sorter.sortSegments();
         sorter.mergeSort();
 
-        //printData(new File("temp.dat"),n);
+        printData(n);
 
 
     }
-    public static void printData(File file,int n) throws IOException{
+    public static void printData(int n) throws IOException{
         RandomAccessFile in = new RandomAccessFile("edgeData" + n + ".dat","r");
         FileChannel fc = in.getChannel();
         int i = 0;
