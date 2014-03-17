@@ -5,7 +5,8 @@ import java.nio.channels.FileChannel;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        int n = 400;
+        // 80000000 is about as big as this implementation can handle;
+        int n = 50000000;
         double alpha = 0.5;
         DataGenerator dg = new DataGenerator();
         dg.GenerateData(n,alpha);
@@ -42,8 +43,8 @@ public class Main {
         sorter.sortSegments();
         sorter.mergeSort();
 
-        printData(n);
-        edgesFile.delete();
+        //printData(n);
+        //edgesFile.delete();
 
 
     }

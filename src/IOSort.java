@@ -163,8 +163,7 @@ public class IOSort {
                         else{temp.putInt(x);}
                     }
                 }
-                //System.out.println("---");
-                //Either P or Q has been emptied, so the other one with remaining elements should be dumped into B
+                //Either P or Q has been emptied, so the other one with remaining elements should be dumped into Temp
                 while (PBuffer.hasRemaining()){temp.putInt(PBuffer.getInt());}
                 while(QBuffer.hasRemaining()){temp.putInt(QBuffer.getInt());}
                 PBuffer.force();
@@ -185,6 +184,8 @@ public class IOSort {
             }
             else{
                 //more than 1 but less than 2, can do sort but with smaller Q buffer sizes
+                //This code could be re-written so that it works in the lines above, and not having to be copy-pasted
+                //this would mean changing the if/else so that it catches it above in the for-loop
                 PBuffer = P.map(FileChannel.MapMode.READ_WRITE,currentIndex,subsetSize);
                 QBuffer = Q.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, this.BYTES_IN_FILE - currentIndex - subsetSize);
 
