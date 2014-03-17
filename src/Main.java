@@ -10,10 +10,11 @@ public class Main {
         //double alpha = 0.5;
         //DataGenerator dg = new DataGenerator();
         //dg.GenerateData(n,alpha);
-        try{
-            IOVersion(n);
-        }
-        catch (Exception e){e.printStackTrace(); }
+       // try{
+       //     IOVersion(n);
+       // }
+       // catch (Exception e){e.printStackTrace(); }
+        printData(n);
 		/*Scanner in = new Scanner(new File("edges.txt"));
 		
 		int N = in.nextInt();
