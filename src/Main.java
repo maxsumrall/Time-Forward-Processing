@@ -5,16 +5,21 @@ import java.nio.channels.FileChannel;
 public class Main {
 
     public static void main(String[] args) throws IOException {
+        /*Generate Data*/
         // 80000000 is about as big as this implementation can handle;
         int n = 50000000;
         //double alpha = 0.5;
         //DataGenerator dg = new DataGenerator();
         //dg.GenerateData(n,alpha);
-       // try{
-       //     IOVersion(n);
-       // }
-       // catch (Exception e){e.printStackTrace(); }
-        printData(n);
+
+
+        /* Sort */
+        /*try{
+            IOVersion(n);
+        }
+        catch (Exception e){e.printStackTrace(); }
+        */
+        //printData(n);
 		/*Scanner in = new Scanner(new File("edges.txt"));
 		
 		int N = in.nextInt();
