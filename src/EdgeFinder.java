@@ -27,7 +27,7 @@ public class EdgeFinder {
         edgesInFile = edgesBuffer.capacity()/8;
     }
 
-    public ArrayList<IOEdge> getEdgesFrom(int desiredOriginID){
+    public ArrayList<Object> getEdgesFrom(int desiredOriginID){
         //Given this originID, find the edges which start here.
         //So lets do binary search?
         int max = edgesInFile*8;
@@ -42,15 +42,28 @@ public class EdgeFinder {
                 ArrayList<IOEdge> edges = new ArrayList<IOEdge>();
                 //step back until we find the first edge with this originID, then step forward to find the last one, and then return this range
                 int startingByte = currentEdgeB;
-                while (){
-
+                while (desiredOriginID == edgesBuffer.getInt(startingByte)){
+                    System.out.println(startingByte);
+                    startingByte -= 8;
                 }
-                return edges;
-            }
-            else if(currOriginID < desiredOriginID){
+
+                int endingByte = currentEdgeB;
+                while(desiredOriginID == edgesBuffer.getInt(endingByte)){
+                    endingByte += 8;
+                }
+                edgesBuffer.position(startingByte);
+                while(edgesBuffer.position() != endingByte){
+                    IOEdge temp = new IOEdge(edgesBuffer.getInt(),edgesBuffer.getInt());
+                    edges.add(temp);
+                }
+                ArrayList<Object> returnList = new  ArrayList<Object>();
+                returnList.add(edges);
+                returnList.add(startingByte);
+                return returnList;
+
+            }else if(currOriginID < desiredOriginID){
                 min = currentEdgeB + 8; //plus 8 bytes for the next edge
-            }
-            else(currOriginID > desiredOriginID){
+            } else{
                 max = currentEdgeB - 8;
             }
         }

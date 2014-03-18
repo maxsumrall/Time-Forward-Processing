@@ -15,7 +15,8 @@ public class IOSort {
     FileChannel edgesFileChannel;
     RandomAccessFile RAFile;
     File edgesFile;
-    int smallestSubsetSize = 2000000; //how many edges to sort in-memory. NUMBER OF EDGES!
+    //int smallestSubsetSize = 2000000; //how many edges to sort in-memory. NUMBER OF EDGES!
+    int smallestSubsetSize = 10;
     long EDGES_IN_FILE;
     long BYTES_IN_FILE;
     int N;      //the first number in the input file of edges
