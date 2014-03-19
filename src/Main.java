@@ -2,19 +2,21 @@ import java.util.*;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.FileChannel;
+
+
 public class Main {
 
     public static void main(String[] args) throws IOException {
         /*Generate Data*/
         // 80000000 is about as big as this implementation can handle;
         int n = 100;
-        double alpha = 0.5;
-        DataGenerator dg = new DataGenerator();
-        dg.GenerateData(n,alpha);
+        //double alpha = 0.5;
+        //DataGenerator dg = new DataGenerator();
+        //dg.GenerateData(n,alpha);
 
 
         /* Sort */
-        try{
+        /*try{
             IOVersion(n);
         }
         catch (Exception e){e.printStackTrace(); }
@@ -23,6 +25,14 @@ public class Main {
 
         EdgeFinder search = new EdgeFinder(n);
         System.out.println(search.getEdgesFrom(0));
+		*/
+        int[] nums = new int[50000000];
+        for (int i = 0; i < 50000000; i++){
+            nums[i] = (int)Math.random()*50000000;
+        }
+        Arrays.sort(nums);
+
+
 		/*Scanner in = new Scanner(new File("edges.txt"));
 		
 		int N = in.nextInt();
