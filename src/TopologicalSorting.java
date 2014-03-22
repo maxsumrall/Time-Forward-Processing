@@ -83,6 +83,7 @@ public class TopologicalSorting {
     * When you want to read the next vertex, move the read pointer of the buffer to this first pointer and read the bytes there, and increment our pointer.
     * When you want to write another vertex, more the pointer of the buffer to the second pointer and start writing, and update out second pointer.
     * */
+<<<<<<< HEAD
     public static IOGraph IOTopologicalSortBFS(IOVertexBuffer vertices, int N) throws Exception{
     	
     	RandomAccessFile RAFile = new RandomAccessFile(new File("indegree.tmp"),"rw");
@@ -99,6 +100,14 @@ public class TopologicalSorting {
         //IOQueue Q = new IOQueue(N);
         //ArrayList<Vertex> topsort = new ArrayList<Vertex>();
         //int[] inDegree = new int[N];
+=======
+    public static ArrayList<Vertex> TopologicalSortBFS_IO(Graph G) throws Exception{
+        int N = G.getSize();
+        Queue<Vertex> Q = new LinkedList<Vertex>();
+        //IOQueue Q = new IOQueue(N);
+        ArrayList<Vertex> topsort = new ArrayList<Vertex>();
+        int[] inDegree = new int[N];
+>>>>>>> 693084350c5cf4d6fddfd847e3a632e6f1ef3c45
 
         /* this loop calculates for each vertex how many edges arrive at it*/
     	indegreeBuffer.position(0);
