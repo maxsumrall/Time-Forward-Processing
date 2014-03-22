@@ -21,23 +21,24 @@ public class IOSort {
     long BYTES_IN_FILE;
     int N;      //the first number in the input file of edges
     long edgesBufferSize;
-    IOSort(File edgesFile){
+    String tempFileName;
+    IOSort(File edgesFile, int n, String tempFileName) throws Exception{
         //Open the file containing the edges for reading only.
+        this.tempFileName = tempFileName;
         this.edgesFile = edgesFile;
         ByteBuffer tempBuffer = ByteBuffer.allocate(8);
-        try{
-            this.RAFile = new RandomAccessFile(edgesFile,"rw");
-            this.edgesFileChannel = this.RAFile.getChannel();
-            this.BYTES_IN_FILE = this.RAFile.length();
-            this.EDGES_IN_FILE = this.edgesFileChannel.size()/8;//divide by 8 because thats how many bytes there are per edge, and thats what I want to know
-            edgesFileChannel.read(tempBuffer);  //read the first number from the file
-            tempBuffer.flip();
-            N = tempBuffer.getInt() + tempBuffer.getInt();   //remember the padding which makes the first one 8 bytes.
-            this.edgesBufferSize =  (N*3*2*4+8);
-            this.edgesBuffer = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, this.edgesFileChannel.size()); //Prepared to handle huge number of edges without consuming heap space
-            this.smallestSubsetSize = Math.min(1000000,this.N/2); //There is not enough room to sort more than 1mil in memory, but we want it to be smaller than N.
-        }
-        catch (IOException e){e.printStackTrace();}
+
+        this.RAFile = new RandomAccessFile(edgesFile,"rw");
+        this.edgesFileChannel = this.RAFile.getChannel();
+        this.BYTES_IN_FILE = this.RAFile.length();
+        this.EDGES_IN_FILE = this.edgesFileChannel.size()/8;//divide by 8 because thats how many bytes there are per edge, and thats what I want to know
+        edgesFileChannel.read(tempBuffer);  //read the first number from the file
+        tempBuffer.flip();
+        this.N = n;
+        this.edgesBufferSize =  (N*3*2*4+8);
+        this.edgesBuffer = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, this.edgesFileChannel.size()); //Prepared to handle huge number of edges without consuming heap space
+        this.smallestSubsetSize = Math.min(1000000,this.N/2); //There is not enough room to sort more than 1mil in memory, but we want it to be smaller than N.
+
 
     }
     public void sortSegments(){
@@ -62,20 +63,6 @@ public class IOSort {
        this.edgesBuffer.force();
     }
 
-
-
-    public void printData(int n) throws IOException{
-        RandomAccessFile in = new RandomAccessFile("originSorted" + n + ".dat","r");
-        FileChannel fc = in.getChannel();
-        int i = 0;
-        MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY,0,fc.size());
-        while(mbb.hasRemaining()){
-
-            System.out.println(i++ + ": " + mbb.getInt() + ", " + mbb.getInt());
-        }
-        System.out.println("-----------");
-    }
-
     /**
      * We have two buffers which are actual files but we can treat them like buffers in memory since the OS handles paging
      *
@@ -96,7 +83,6 @@ public class IOSort {
      * Make sure you get EDGES and TEMP swapped back or something.
      */
     public void mergeSort() throws IOException{
-
         int subsetSize = smallestSubsetSize*8;  //bytes
         int currentIndex = 0;     //bytes?  the 8 means I skip the first guy
         FileChannel P;//P and Q are location indices into the two sets I will merge[sort]
@@ -106,13 +92,12 @@ public class IOSort {
         RandomAccessFile rTempFile;
         RandomAccessFile rTempFileP;
         RandomAccessFile rTempFileQ;
-        boolean flip = true;
         //make two maps over the file channel, one for each subset which will be merged.
         // File = [<------P------>|<------Q------>|....................]
 
         //Make an intermediary file/buffer to move the merged copies to.
         MappedByteBuffer temp;
-        File tempFile = new File("originSorted" + "100" + ".dat");
+        File tempFile = new File(this.tempFileName + this.N + ".dat");
         FileChannel tempFileChannel;
        try{
             rTempFile = new RandomAccessFile(tempFile,"rw");

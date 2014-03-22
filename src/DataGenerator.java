@@ -26,6 +26,7 @@ public class DataGenerator {
      * @param alpha
      */
     public void GenerateData(int n, double alpha){
+        System.out.println("Beginning Data generation...");
         file = new File("edgeData" + Integer.toString(n) + ".dat");
         long bytesNeeded  = (n*4*2*3)+8;//how large to make the buffer
         try{
@@ -45,6 +46,7 @@ public class DataGenerator {
             this.newEdge(origin,origin+span);
         }
         //Done with generating and writing data, close everything.
+        System.out.println("Completed Data generation.");
         this.buffer.force();
         try {
             this.fc.close();
@@ -60,7 +62,7 @@ public class DataGenerator {
      */
     private void newEdge(int i, int j){
         if (this.buffer != null){
-            //System.out.println(Integer.toString(i) + " " + Integer.toString(j));
+            System.out.println(Integer.toString(i) + " " + Integer.toString(j));
             this.buffer.putInt(i);
             this.buffer.putInt(j);
         }
