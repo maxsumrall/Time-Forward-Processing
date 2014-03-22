@@ -36,6 +36,10 @@ public class IOQueue{
         buffer.putInt(val);
         writePointer += 4;
     }
+    
+    public boolean isEmpty() {
+    	return readPointer <= writePointer;
+    }
 
     public void close() throws Exception{
         fileChannel.close();

@@ -1,3 +1,6 @@
+import java.io.*;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.*;
 
 public class LongestPath {
@@ -25,6 +28,43 @@ public class LongestPath {
 			}
 		
 		return dist;
+	}
+	
+	/**
+	 * The graph is assumed to be in topological order.
+	 * 
+	 * @param G
+	 * @return
+	 */
+    public static void IOLongestPathDP(IOGraph G) throws IOException {
+		int N = G.getSize();
+		RandomAccessFile raf = new RandomAccessFile(new File("outputDP.dat"), "rw");
+		FileChannel fc = raf.getChannel();
+	    MappedByteBuffer buffer = fc.map(FileChannel.MapMode.READ_WRITE,0, 4 * N);
+	    
+	    buffer.position(0);
+		for (int i = 0; i < N; ++i)
+			buffer.putInt(0);
+			
+		buffer.position(0);
+		for (int i = 0; i < N; ++i) {
+			IOVertex u = G.getVertices().getVertexAt(i);
+			for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
+				
+				int distU = buffer.getInt(4 * u.getId());
+				int distV = buffer.getInt(4 * to);
+				int newDist = Math.max(distV, distU + 1);
+				buffer.putInt(4 * to, newDist);
+			}
+		}
+		
+		buffer.position(0);
+		for (int i = 0; i < N; ++i)
+			System.out.println(buffer.getInt());
+		
+		fc.close();
+		raf.close();
+		
 	}
 	
 	public static int[] LongestPathTimeForward(Graph G, int M) {
@@ -79,4 +119,64 @@ public class LongestPath {
 		
 		return distance;
 	}
+	
+	public static void main(String[] args) throws IOException {
+    	int edges = 8;
+    	int bytes = 2 * 4 * edges;
+    	int N = 8;
+    	
+    	RandomAccessFile rafOrigin = new RandomAccessFile(new File("originSorted" + N + ".dat"), "rw");
+    	FileChannel fcOrigin = rafOrigin.getChannel();
+        MappedByteBuffer bufferOrigin = fcOrigin.map(FileChannel.MapMode.READ_WRITE,0,bytes);
+
+        bufferOrigin.putInt(0); bufferOrigin.putInt(1);
+        bufferOrigin.putInt(0); bufferOrigin.putInt(2);
+        bufferOrigin.putInt(1); bufferOrigin.putInt(6);
+        bufferOrigin.putInt(2); bufferOrigin.putInt(5);
+        bufferOrigin.putInt(3); bufferOrigin.putInt(2);
+        bufferOrigin.putInt(3); bufferOrigin.putInt(5);
+        bufferOrigin.putInt(4); bufferOrigin.putInt(1);
+        bufferOrigin.putInt(6); bufferOrigin.putInt(7);
+        
+        fcOrigin.close();
+        rafOrigin.close();
+        
+        RandomAccessFile rafDest = new RandomAccessFile(new File("destSorted" + N + ".dat"), "rw");
+    	FileChannel fcDest = rafDest.getChannel();
+        MappedByteBuffer bufferDest = fcDest.map(FileChannel.MapMode.READ_WRITE,0,bytes);
+
+        bufferDest.putInt(0); bufferDest.putInt(1);
+        bufferDest.putInt(4); bufferDest.putInt(1);
+        bufferDest.putInt(0); bufferDest.putInt(2);
+        bufferDest.putInt(3); bufferDest.putInt(2);
+        bufferDest.putInt(2); bufferDest.putInt(5);
+        bufferDest.putInt(3); bufferDest.putInt(5);
+        bufferDest.putInt(1); bufferDest.putInt(6);
+        bufferDest.putInt(6); bufferDest.putInt(7);
+        
+        fcDest.close();
+        rafDest.close();
+        
+        IOVertexBuffer vertices = new IOVertexBuffer(N, "vertices1.dat");
+        vertices.addVertex(new IOVertex(0, 0, 10, 20, -1));
+        vertices.addVertex(new IOVertex(1, 1, 10, 20, -1));
+        vertices.addVertex(new IOVertex(2, 2, 10, 20, -1));
+        vertices.addVertex(new IOVertex(3, 3, 10, 20, -1));
+        vertices.addVertex(new IOVertex(4, 4, 10, 20, -1));
+        vertices.addVertex(new IOVertex(5, 5, 10, 20, -1));
+        vertices.addVertex(new IOVertex(6, 6, 10, 20, -1));
+        vertices.addVertex(new IOVertex(7, 7, 10, 20, -1));
+        
+        try {
+        	IOGraph graph = TopologicalSorting.IOTopologicalSortBFS(vertices, N);
+        	System.out.println(graph.getVertices());
+        	System.out.println(graph.getEdges());
+        	
+        	IOLongestPathDP(graph);
+        	
+        	
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+    }
 }
