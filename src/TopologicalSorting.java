@@ -79,8 +79,8 @@ public class TopologicalSorting {
     * */
     public static ArrayList<Vertex> TopologicalSortBFS_IO(Graph G) throws Exception{
         int N = G.getSize();
-        //Queue<Vertex> Q = new LinkedList<Vertex>();
-        IOQueue Q = new IOQueue(N);
+        Queue<Vertex> Q = new LinkedList<Vertex>();
+        //IOQueue Q = new IOQueue(N);
         ArrayList<Vertex> topsort = new ArrayList<Vertex>();
         int[] inDegree = new int[N];
 

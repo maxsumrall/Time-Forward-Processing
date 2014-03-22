@@ -16,7 +16,7 @@ public class IOSort {
     RandomAccessFile RAFile;
     File edgesFile;
     //int smallestSubsetSize = 2000000; //how many edges to sort in-memory. NUMBER OF EDGES!
-    int smallestSubsetSize = 10;
+    int smallestSubsetSize;
     long EDGES_IN_FILE;
     long BYTES_IN_FILE;
     int N;      //the first number in the input file of edges
@@ -35,6 +35,7 @@ public class IOSort {
             N = tempBuffer.getInt() + tempBuffer.getInt();   //remember the padding which makes the first one 8 bytes.
             this.edgesBufferSize =  (N*3*2*4+8);
             this.edgesBuffer = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, this.edgesFileChannel.size()); //Prepared to handle huge number of edges without consuming heap space
+            this.smallestSubsetSize = Math.min(1000000,this.N/2); //There is not enough room to sort more than 1mil in memory, but we want it to be smaller than N.
         }
         catch (IOException e){e.printStackTrace();}
 
@@ -64,7 +65,7 @@ public class IOSort {
 
 
     public void printData(int n) throws IOException{
-        RandomAccessFile in = new RandomAccessFile("edgeData" + n + ".dat","r");
+        RandomAccessFile in = new RandomAccessFile("originSorted" + n + ".dat","r");
         FileChannel fc = in.getChannel();
         int i = 0;
         MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY,0,fc.size());
@@ -111,7 +112,7 @@ public class IOSort {
 
         //Make an intermediary file/buffer to move the merged copies to.
         MappedByteBuffer temp;
-        File tempFile = new File("temp.dat");
+        File tempFile = new File("originSorted" + "100" + ".dat");
         FileChannel tempFileChannel;
        try{
             rTempFile = new RandomAccessFile(tempFile,"rw");
@@ -235,6 +236,8 @@ public class IOSort {
 
         }
 
-    tempFile.delete();
+    //tempFile.delete();
+    //save everything to new file.
+    tempFileChannel.transferTo(0,this.edgesFileChannel.size(),this.edgesFileChannel);
 }   }
 

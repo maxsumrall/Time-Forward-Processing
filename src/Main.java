@@ -16,24 +16,28 @@ public class Main {
 
 
         /* Sort */
-        /*try{
+        try{
             IOVersion(n);
         }
         catch (Exception e){e.printStackTrace(); }
 
         printData(n);
 
-        EdgeFinder search = new EdgeFinder(n);
-        System.out.println(search.getEdgesFrom(0));
-		*/
+        //EdgeFinder search = new EdgeFinder(n);
+        //System.out.println(search.getEdgesFrom(0));
+
+
+
+        /* Testing what happens with huge data on small machine-- can ignore
         int[] nums = new int[50000000];
         for (int i = 0; i < 50000000; i++){
             nums[i] = (int)Math.random()*50000000;
         }
         Arrays.sort(nums);
+        */
 
-
-		/*Scanner in = new Scanner(new File("edges.txt"));
+		/* Origional code for generating data
+		Scanner in = new Scanner(new File("edges.txt"));
 		
 		int N = in.nextInt();
 		Graph G = new Graph(N);
@@ -68,7 +72,7 @@ public class Main {
 
     }
     public static void printData(int n) throws IOException{
-        RandomAccessFile in = new RandomAccessFile("edgeData" + n + ".dat","r");
+        RandomAccessFile in = new RandomAccessFile("originSorted" + n + ".dat","r");
         FileChannel fc = in.getChannel();
         int i = 0;
         MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY,0,fc.size());
