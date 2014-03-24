@@ -86,7 +86,8 @@ public class TopologicalSorting {
 
 	public static IOGraph IOTopologicalSortBFS(IOVertexBuffer vertices, int N) throws Exception{
     	
-    	RandomAccessFile RAFile = new RandomAccessFile(new File("indegree.tmp"),"rw");
+		File indegreeFile = new File("indegree.tmp");
+    	RandomAccessFile RAFile = new RandomAccessFile(indegreeFile,"rw");
     	FileChannel indegreeFileChannel = RAFile.getChannel();
     	MappedByteBuffer indegreeBuffer = indegreeFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * N);
     	
@@ -94,7 +95,12 @@ public class TopologicalSorting {
     	// Calculate the indegree for each vertex from the destination-sorted edge list
     	RandomAccessFile destRAFile = new RandomAccessFile(new File("destSorted" + N + ".dat"),"rw");
     	FileChannel destFileChannel = destRAFile.getChannel();
-    	MappedByteBuffer destBuffer = destFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * 2 * N);
+    	MappedByteBuffer destBuffer = destFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * 2 * 3 * N);
+    	
+    	destBuffer.position(0);
+        while (destBuffer.hasRemaining())
+        	System.out.println(destBuffer.getInt() + ", " + destBuffer.getInt());
+        destBuffer.position(0);
 
         /* this loop calculates for each vertex how many edges arrive at it*/
     	indegreeBuffer.position(0);
@@ -103,19 +109,28 @@ public class TopologicalSorting {
         
         indegreeBuffer.position(0);
     	int prev = -1;
+    	HashSet<Integer> seen = new HashSet<Integer>();
         while (destBuffer.hasRemaining()) { //for each vertex
         	int u = destBuffer.getInt();
         	int v = destBuffer.getInt();
         	
         	if (v != prev) {
-        		indegreeBuffer.putInt(4 * v, 1);
-        	} else {
+        		indegreeBuffer.putInt(4 * v, 0);
+        		seen.clear();
+        	}
+    		if (!seen.contains(u)) {
 	            int d = indegreeBuffer.getInt(4 * v);
 	            indegreeBuffer.putInt(4 * v, d + 1);
-        	}
+	            seen.add(u);
+    		}
             
             prev = v;
         }
+        
+        /*indegreeBuffer.position(0);
+        for (int i = 0; i < N; ++i)
+        	System.out.println(indegreeBuffer.getInt());
+        indegreeBuffer.position(0);*/
 
         destFileChannel.close();
         destRAFile.close();
@@ -129,6 +144,7 @@ public class TopologicalSorting {
     	
     	int pointer = 0;
     	prev = -1;
+    	seen = new HashSet<Integer>();
     	while (originBuffer.hasRemaining()) {
     		int u = originBuffer.getInt();
         	int v = originBuffer.getInt();
@@ -141,9 +157,13 @@ public class TopologicalSorting {
         			}
         		}
         		vertices.setEdgesAt(u, pointer);
+        		seen.clear();
         	}
-        	edges.addEdge(v);
-        	++pointer;
+        	if (!seen.contains(v)) {
+        		seen.add(v);
+        		edges.addEdge(v);
+        		++pointer;
+        	}
         	
         	prev = u;
     	}
@@ -195,16 +215,20 @@ public class TopologicalSorting {
 
         indegreeFileChannel.close();
         RAFile.close();
+        
+        if (indegreeFile.exists())
+        	indegreeFile.delete();
 
         return new IOGraph(N, sortedVertices, sortedEdges);
     }
     
     public static void main(String[] args) throws IOException {
-    	int edges = 8;
+    	int N = 9;
+    	int edges = 3 * N;
     	int bytes = 2 * 4 * edges;
-    	int N = 8;
     	
-    	RandomAccessFile rafOrigin = new RandomAccessFile(new File("originSorted" + N + ".dat"), "rw");
+    	
+    	/*RandomAccessFile rafOrigin = new RandomAccessFile(new File("originSorted" + N + ".dat"), "rw");
     	FileChannel fcOrigin = rafOrigin.getChannel();
         MappedByteBuffer bufferOrigin = fcOrigin.map(FileChannel.MapMode.READ_WRITE,0,bytes);
 
@@ -234,17 +258,11 @@ public class TopologicalSorting {
         bufferDest.putInt(6); bufferDest.putInt(7);
         
         fcDest.close();
-        rafDest.close();
+        rafDest.close();*/
         
         IOVertexBuffer vertices = new IOVertexBuffer(N, "vertices1.dat");
-        vertices.addVertex(new IOVertex(0, 0, 10, 20, -1));
-        vertices.addVertex(new IOVertex(1, 1, 10, 20, -1));
-        vertices.addVertex(new IOVertex(2, 2, 10, 20, -1));
-        vertices.addVertex(new IOVertex(3, 3, 10, 20, -1));
-        vertices.addVertex(new IOVertex(4, 4, 10, 20, -1));
-        vertices.addVertex(new IOVertex(5, 5, 10, 20, -1));
-        vertices.addVertex(new IOVertex(6, 6, 10, 20, -1));
-        vertices.addVertex(new IOVertex(7, 7, 10, 20, -1));
+        for (int i = 0; i < N; ++i)
+        	vertices.addVertex(new IOVertex(i, i, 10 * i, 10 * i, -1));
         
         try {
         	IOGraph graph = IOTopologicalSortBFS(vertices, N);

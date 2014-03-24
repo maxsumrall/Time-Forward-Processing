@@ -28,6 +28,11 @@ public class DataGenerator {
     public void GenerateData(int n, double alpha){
         System.out.println("Beginning Data generation...");
         file = new File("edgeData" + Integer.toString(n) + ".dat");
+        
+        if (file.exists()) {
+        	file.delete();
+        }
+        
         long bytesNeeded  = (n*4*2*3)+8;//how large to make the buffer
         try{
             this.fc = new RandomAccessFile(this.file, "rw").getChannel();

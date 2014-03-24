@@ -98,6 +98,10 @@ public class IOSort {
         //Make an intermediary file/buffer to move the merged copies to.
         MappedByteBuffer temp;
         File tempFile = new File(this.tempFileName + this.N + ".dat");
+        
+        if (tempFile.exists())
+        	tempFile.delete();
+        
         FileChannel tempFileChannel;
        try{
             rTempFile = new RandomAccessFile(tempFile,"rw");
