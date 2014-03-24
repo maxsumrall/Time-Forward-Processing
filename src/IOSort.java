@@ -26,14 +26,14 @@ public class IOSort {
         //Open the file containing the edges for reading only.
         this.tempFileName = tempFileName;
         this.edgesFile = edgesFile;
-        ByteBuffer tempBuffer = ByteBuffer.allocate(8);
+        //ByteBuffer tempBuffer = ByteBuffer.allocate(8);
 
         this.RAFile = new RandomAccessFile(edgesFile,"rw");
         this.edgesFileChannel = this.RAFile.getChannel();
         this.BYTES_IN_FILE = this.RAFile.length();
         this.EDGES_IN_FILE = this.edgesFileChannel.size()/8;//divide by 8 because thats how many bytes there are per edge, and thats what I want to know
-        edgesFileChannel.read(tempBuffer);  //read the first number from the file
-        tempBuffer.flip();
+        //edgesFileChannel.read(tempBuffer);  //read the first number from the file
+        //tempBuffer.flip();
         this.N = n;
         this.edgesBufferSize =  (N*3*2*4+8);
         this.edgesBuffer = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, this.edgesFileChannel.size()); //Prepared to handle huge number of edges without consuming heap space

@@ -32,8 +32,8 @@ public class DataGenerator {
         try{
             this.fc = new RandomAccessFile(this.file, "rw").getChannel();
             this.buffer = fc.map(FileChannel.MapMode.READ_WRITE,0,bytesNeeded);
-            this.buffer.putInt(0);//byte alignment
-            this.buffer.putInt(n);//the first int will be the number of vertices
+            //this.buffer.putInt(0);//byte alignment
+            //this.buffer.putInt(n);//the first int will be the number of vertices
         }
         catch(IOException e){
             System.out.println("IO Problem " + e.getMessage());
