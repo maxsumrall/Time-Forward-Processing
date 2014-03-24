@@ -4,8 +4,8 @@
 import java.util.*;
 
 public class IOEdge implements Comparable<IOEdge> {
-    private int to;
-    private int ID;
+    private int to = -1;
+    private int ID = -1;
 
     public IOEdge(int ID, int to) {
         this.ID = ID;

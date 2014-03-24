@@ -28,7 +28,7 @@ public class DataGenerator {
     public void GenerateData(int n, double alpha){
         System.out.println("Beginning Data generation...");
         file = new File("edgeData" + Integer.toString(n) + ".dat");
-        long bytesNeeded  = (n*4*2*3)+8;//how large to make the buffer
+        long bytesNeeded  = (n*4*2*3);//how large to make the buffer
         try{
             this.fc = new RandomAccessFile(this.file, "rw").getChannel();
             this.buffer = fc.map(FileChannel.MapMode.READ_WRITE,0,bytesNeeded);
@@ -63,6 +63,7 @@ public class DataGenerator {
     private void newEdge(int i, int j){
         if (this.buffer != null){
             System.out.println(Integer.toString(i) + " " + Integer.toString(j));
+            assert((i != 0)&&(j !=0));
             this.buffer.putInt(i);
             this.buffer.putInt(j);
         }
