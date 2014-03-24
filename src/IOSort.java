@@ -42,23 +42,23 @@ public class IOSort {
 
     }
     public void sortSegments(){
-
-        ArrayList<IOEdge> temp = new ArrayList<IOEdge>();
+        this.edgesBuffer.position(0);
         int count = this.edgesBuffer.remaining();
         int bytesPerSubset = this.smallestSubsetSize*8;//an edge is two ints, which are 4 bytes
         for (int i = 0; i < count; i+=bytesPerSubset){//for each subset...
             this.edgesBuffer.mark();
+            ArrayList<IOEdge> temp = new ArrayList<IOEdge>();
             for(int j = 0; (j < smallestSubsetSize) && (this.edgesBuffer.remaining() > 8); j++){
                 temp.add(new IOEdge(this.edgesBuffer.getInt(),this.edgesBuffer.getInt()));
             }
             this.edgesBuffer.reset();
             Collections.sort(temp);
-            //System.out.println(temp);
+            System.out.println(temp);
             for (IOEdge e: temp){
+                assert((e.getID() != 0)&&(e.getTo() != 0));
                 this.edgesBuffer.putInt(e.getID());
                 this.edgesBuffer.putInt(e.getTo());
             }
-         temp.clear();
         }
        this.edgesBuffer.force();
     }
@@ -107,10 +107,10 @@ public class IOSort {
             rTempFile = new RandomAccessFile(tempFile,"rw");
             rTempFileP = new RandomAccessFile(this.edgesFile,"rw");
             rTempFileQ = new RandomAccessFile(this.edgesFile,"rw");
-            tempFileChannel = rTempFile.getChannel();
+            tempFileChannel = rTempFile.getChannel().position(0);
            temp = tempFileChannel.map(FileChannel.MapMode.READ_WRITE,0,this.edgesFileChannel.size());  //size of the original buffer
-           P = rTempFileP.getChannel();
-            Q = rTempFileQ.getChannel();
+           P = rTempFileP.getChannel().position(0);
+            Q = rTempFileQ.getChannel().position(0);
        }
         catch(IOException e){e.printStackTrace();return;}
 
@@ -141,16 +141,18 @@ public class IOSort {
                     //System.out.println(x+ " <--x, y-->"+y);
 
                     if (x < y){
+                        int tempX = PBuffer.getInt();
+                        assert((x != 0) && (tempX != 0));
                         temp.putInt(x);
-                        temp.putInt(PBuffer.getInt());//put both the values for the edge
-                        //System.out.print(x + ", ");
+                        temp.putInt(tempX);//put both the values for the edge
                         if(PBuffer.hasRemaining()){x = PBuffer.getInt();}
                         else{temp.putInt(y);}
                     }
                     else{
+                        int tempY = QBuffer.getInt();
+                        assert((y != 0)&&(tempY != 0));
                         temp.putInt(y);
-                        temp.putInt(QBuffer.getInt());
-                        //System.out.print(y+ ", ");
+                        temp.putInt(tempY);
                         if (QBuffer.hasRemaining()){y = QBuffer.getInt();}
                         else{temp.putInt(x);}
                     }
@@ -189,14 +191,18 @@ public class IOSort {
                     //System.out.println(x+ " <--x, y-->"+y);
 
                     if (x < y){
+                        int tempX = PBuffer.getInt();
+                        assert((x != 0) && (tempX != 0));
                         temp.putInt(x);
-                        temp.putInt(PBuffer.getInt());//put both the values for the edge
+                        temp.putInt(tempX);//put both the values for the edge
                         if(PBuffer.hasRemaining()){x = PBuffer.getInt();}
                         else{temp.putInt(y);}
                     }
                     else{
+                        int tempY = QBuffer.getInt();
+                        assert((y != 0)&&(tempY != 0));
                         temp.putInt(y);
-                        temp.putInt(QBuffer.getInt());
+                        temp.putInt(tempY);
                         if (QBuffer.hasRemaining()){y = QBuffer.getInt();}
                         else{temp.putInt(x);}
                     }
