@@ -37,7 +37,8 @@ public class IOSort {
         this.N = n;
         this.edgesBufferSize =  (N*3*2*4+8);
         this.edgesBuffer = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, this.edgesFileChannel.size()); //Prepared to handle huge number of edges without consuming heap space
-        this.smallestSubsetSize = Math.min(1000000,this.N/2); //There is not enough room to sort more than 1mil in memory, but we want it to be smaller than N.
+        this.smallestSubsetSize = Math.min(2000000,this.N/2); //There is not enough room to sort more than 1mil in memory, but we want it to be smaller than N.
+        System.out.println("Smallest subset size: " + this.smallestSubsetSize);
 
 
     }
@@ -141,18 +142,14 @@ public class IOSort {
                     //System.out.println(x+ " <--x, y-->"+y);
 
                     if (x < y){
-                        int tempX = PBuffer.getInt();
-                        assert((x != 0) && (tempX != 0));
                         temp.putInt(x);
-                        temp.putInt(tempX);//put both the values for the edge
+                        temp.putInt(PBuffer.getInt());//put both the values for the edge
                         if(PBuffer.hasRemaining()){x = PBuffer.getInt();}
                         else{temp.putInt(y);}
                     }
                     else{
-                        int tempY = QBuffer.getInt();
-                        assert((y != 0)&&(tempY != 0));
                         temp.putInt(y);
-                        temp.putInt(tempY);
+                        temp.putInt(QBuffer.getInt());
                         if (QBuffer.hasRemaining()){y = QBuffer.getInt();}
                         else{temp.putInt(x);}
                     }
@@ -191,18 +188,14 @@ public class IOSort {
                     //System.out.println(x+ " <--x, y-->"+y);
 
                     if (x < y){
-                        int tempX = PBuffer.getInt();
-                        assert((x != 0) && (tempX != 0));
                         temp.putInt(x);
-                        temp.putInt(tempX);//put both the values for the edge
+                        temp.putInt(PBuffer.getInt());//put both the values for the edge
                         if(PBuffer.hasRemaining()){x = PBuffer.getInt();}
                         else{temp.putInt(y);}
                     }
                     else{
-                        int tempY = QBuffer.getInt();
-                        assert((y != 0)&&(tempY != 0));
                         temp.putInt(y);
-                        temp.putInt(tempY);
+                        temp.putInt(QBuffer.getInt());
                         if (QBuffer.hasRemaining()){y = QBuffer.getInt();}
                         else{temp.putInt(x);}
                     }

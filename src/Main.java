@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         /*Generate Data*/
         // 80000000 is about as big as this implementation can handle;
-        int n = 10;
+        int n = 9;
         double alpha = 0.5;
         DataGenerator dg = new DataGenerator();
         dg.GenerateData(n,alpha);
@@ -54,14 +54,14 @@ public class Main {
 		System.exit(0);
 	}
     public static void IOVersion(int n) throws Exception{
-        //File edgesFile = new File("edgeData"+ n + ".dat");
-        File edgesFile = new File("outFileEdgesBytes.dat");
+        File edgesFile = new File("edgeData"+ n + ".dat");
+        //File edgesFile = new File("outFileEdgesBytes.dat"); //for testing the given test files
         System.out.println("Beginning sort by Origin");
-        IOSort originSorter = new IOSort(edgesFile, n, "originSorted");
+        IOSort originSorter = new IOSort(edgesFile, 10000000, "originSorted");
         originSorter.sortSegments();
         originSorter.mergeSort();
 
-        //printData(n, "originSorted");
+        printData(n, "originSorted");
 
 
         //System.out.println("Beginning sort by Dest");
@@ -70,8 +70,8 @@ public class Main {
         //printData(n, "destSorted");
     }
     public static void printData(int n, String filenamepart) throws IOException{
-        //RandomAccessFile in = new RandomAccessFile(filenamepart + n + ".dat","r");
-        RandomAccessFile in = new RandomAccessFile(filenamepart +".dat","r");
+        RandomAccessFile in = new RandomAccessFile(filenamepart + n + ".dat","r");
+       // RandomAccessFile in = new RandomAccessFile(filenamepart +".dat","r");
         FileChannel fc = in.getChannel();
         int i = 0;
         MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY,0,fc.size());
