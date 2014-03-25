@@ -48,12 +48,12 @@ public class IOSort {
         for (int i = 0; i < count; i+=bytesPerSubset){//for each subset...
             this.edgesBuffer.mark();
             ArrayList<IOEdge> temp = new ArrayList<IOEdge>();
-            for(int j = 0; (j < smallestSubsetSize) && (this.edgesBuffer.remaining() > 8); j++){
+            for(int j = 0; (j < smallestSubsetSize) && (this.edgesBuffer.remaining() >= 8); j++){
                 temp.add(new IOEdge(this.edgesBuffer.getInt(),this.edgesBuffer.getInt()));
             }
             this.edgesBuffer.reset();
             Collections.sort(temp);
-            System.out.println(temp);
+            //System.out.println(temp);
             for (IOEdge e: temp){
                 assert((e.getID() != 0)&&(e.getTo() != 0));
                 this.edgesBuffer.putInt(e.getID());
@@ -119,7 +119,7 @@ public class IOSort {
 
 
         while(subsetSize < this.BYTES_IN_FILE){//continue until the current size of groups to merge is the size of the whole file
-            System.out.println(this.BYTES_IN_FILE/subsetSize);
+            //System.out.println(this.BYTES_IN_FILE/subsetSize);
             //System.out.println("subsetSize: " + subsetSize + ", BytesinFile: " + BYTES_IN_FILE);
             //temp = tempFileChannel.map(FileChannel.MapMode.READ_WRITE,0,this.edgesFileChannel.size());  //size of the original buffer
             temp.position(0);

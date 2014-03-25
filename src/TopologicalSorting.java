@@ -97,10 +97,10 @@ public class TopologicalSorting {
     	FileChannel destFileChannel = destRAFile.getChannel();
     	MappedByteBuffer destBuffer = destFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * 2 * 3 * N);
     	
-    	destBuffer.position(0);
+    	/*destBuffer.position(0);
         while (destBuffer.hasRemaining())
         	System.out.println(destBuffer.getInt() + ", " + destBuffer.getInt());
-        destBuffer.position(0);
+        destBuffer.position(0);*/
 
         /* this loop calculates for each vertex how many edges arrive at it*/
     	indegreeBuffer.position(0);
@@ -109,6 +109,7 @@ public class TopologicalSorting {
         
     	int prev = -1;
     	HashSet<Integer> seen = new HashSet<Integer>();
+    	int maxIndegree = 0;
         while (destBuffer.hasRemaining()) { //for each vertex
         	int u = destBuffer.getInt();
         	int v = destBuffer.getInt();
@@ -121,15 +122,17 @@ public class TopologicalSorting {
 	            int d = indegreeBuffer.getInt(4 * v);
 	            indegreeBuffer.putInt(4 * v, d + 1);
 	            seen.add(u);
+	            maxIndegree = Math.max(maxIndegree, d + 1);
     		}
             
             prev = v;
         }
+        System.out.println("max indegree: " + maxIndegree);
         
-        indegreeBuffer.position(0);
+        /*indegreeBuffer.position(0);
         for (int i = 0; i < N; ++i)
         	System.out.println(indegreeBuffer.getInt());
-        indegreeBuffer.position(0);
+        indegreeBuffer.position(0);*/
 
         destFileChannel.close();
         destRAFile.close();
@@ -139,10 +142,10 @@ public class TopologicalSorting {
     	FileChannel originFileChannel = originRAFile.getChannel();
     	MappedByteBuffer originBuffer = originFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * 2 * 3 * N);
     	
-    	originBuffer.position(0);
+    	/*originBuffer.position(0);
         while (originBuffer.hasRemaining())
         	System.out.println(originBuffer.getInt() + ", " + originBuffer.getInt());
-        originBuffer.position(0);
+        originBuffer.position(0);*/
     	
     	IOEdgesBuffer edges = new IOEdgesBuffer(N, "edges1.dat");
     	
@@ -176,8 +179,8 @@ public class TopologicalSorting {
     		++pointer;
     	}
     	
-    	System.out.println(vertices);
-    	System.out.println(edges);
+    	//System.out.println(vertices);
+    	//System.out.println(edges);
     	
     	originFileChannel.close();
         originRAFile.close();
@@ -228,7 +231,7 @@ public class TopologicalSorting {
     }
     
     public static void main(String[] args) throws IOException {
-    	int N = 9;
+    	int N = 10;
     	int edges = 3 * N;
     	int bytes = 2 * 4 * edges;
     	

@@ -10,7 +10,7 @@ public class Graph {
 	}
 	
 	public void addEdge(int i, int j) {
-        System.out.println(i + "," + j);
+        //System.out.println(i + "," + j);
 		this.getVertexAt(i).getEdges().add(new Edge(this.getVertexAt(j),this.getVertexAt(j).getId()));
 	}
 	
