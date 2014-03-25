@@ -10,8 +10,8 @@ public class Main {
         // 80000000 is about as big as this implementation can handle;
         int n = 9;
         double alpha = 0.5;
-        DataGenerator dg = new DataGenerator();
-        dg.GenerateData(n,alpha);
+        //DataGenerator dg = new DataGenerator();
+        //dg.GenerateData(n,alpha);
 
 
         /* Sort */
@@ -54,8 +54,8 @@ public class Main {
 		System.exit(0);
 	}
     public static void IOVersion(int n) throws Exception{
-        File edgesFile = new File("edgeData"+ n + ".dat");
-        //File edgesFile = new File("outFileEdgesBytes.dat"); //for testing the given test files
+        //File edgesFile = new File("edgeData"+ n + ".dat");
+        File edgesFile = new File("outFileEdgesBytes.dat"); //for testing the given test files
         System.out.println("Beginning sort by Origin");
         IOSort originSorter = new IOSort(edgesFile, 10000000, "originSorted");
         originSorter.sortSegments();
