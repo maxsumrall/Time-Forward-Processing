@@ -15,8 +15,8 @@ public class Main {
 
 
         /* Sort */
-        //IOVersion(n);
-        convertTXTtoBytes(new File("../../../randomgraphs/test10Mregular-edges"));
+        IOVersion(n);
+        //convertTXTtoBytes(new File("../../../randomgraphs/test10Mregular-edges"));
 
         //EdgeFinder search = new EdgeFinder(n);
         //System.out.println(search.getEdgesFrom(0));
@@ -54,7 +54,8 @@ public class Main {
 		System.exit(0);
 	}
     public static void IOVersion(int n) throws Exception{
-        File edgesFile = new File("edgeData"+ n + ".dat");
+        //File edgesFile = new File("edgeData"+ n + ".dat");
+        File edgesFile = new File("outFileEdgesBytes.dat");
         System.out.println("Beginning sort by Origin");
         IOSort originSorter = new IOSort(edgesFile, n, "originSorted");
         originSorter.sortSegments();
