@@ -5,6 +5,8 @@ import java.util.*;
 
 public class LongestPath {
 	
+	static final int FIELD_SIZE = 4; // 4 bytes
+	
 	static class QueueItem implements Comparable<QueueItem> {
 		int id, time, distance;
 		public QueueItem(int id, int time, int distance) {
@@ -41,7 +43,7 @@ public class LongestPath {
 		int N = G.getSize();
 		RandomAccessFile raf = new RandomAccessFile(new File("outputDP.dat"), "rw");
 		FileChannel fc = raf.getChannel();
-	    MappedByteBuffer buffer = fc.map(FileChannel.MapMode.READ_WRITE,0, 4 * N);
+	    MappedByteBuffer buffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
 	    
 	    buffer.position(0);
 		for (int i = 0; i < N; ++i)
@@ -52,10 +54,10 @@ public class LongestPath {
 			IOVertex u = G.getVertices().getVertexAt(i);
 			for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
 				
-				int distU = buffer.getInt(4 * u.getId());
-				int distV = buffer.getInt(4 * to);
+				int distU = buffer.getInt(FIELD_SIZE * u.getId());
+				int distV = buffer.getInt(FIELD_SIZE * to);
 				int newDist = Math.max(distV, distU + 1);
-				buffer.putInt(4 * to, newDist);
+				buffer.putInt(FIELD_SIZE * to, newDist);
 			}
 		}
 		
@@ -131,7 +133,7 @@ public class LongestPath {
 		int N = G.getSize();
 		RandomAccessFile raf = new RandomAccessFile(new File("outputTF.dat"), "rw");
 		FileChannel fc = raf.getChannel();
-	    MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, 4 * N);
+	    MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
 		
 		int B = (int)Math.ceil((double)N / M);
 		
@@ -141,7 +143,7 @@ public class LongestPath {
 		MappedByteBuffer[] buffers = new MappedByteBuffer[B];
 		int[] counter = new int[B]; // Counts how many edges per buffer
 		
-		int nBytes = 4 * 3 * 10 * M; // 4 bytes * <id, time, dist> * max_indegree * M
+		int nBytes = FIELD_SIZE * 3 * 10 * M; // 4 bytes * <id, time, dist> * max_indegree * M
 		for (int i = 0; i < B; ++i) {
 			buffers[i] = fcTf.map(FileChannel.MapMode.READ_WRITE, i * nBytes, nBytes);
 		}
@@ -176,20 +178,20 @@ public class LongestPath {
 				maxDistance = Math.max(maxDistance, top.distance + 1);
 			}
 			
-			distBuffer.putInt(4 * u.getId(), maxDistance);
+			distBuffer.putInt(FIELD_SIZE * u.getId(), maxDistance);
 			
 			// Put information of neighbors in data structure
 			for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
             	IOVertex v = G.getVertices().getVertexAt(to);
             	int period = v.getTime() / M;
-            	int d = distBuffer.getInt(4 * u.getId());
+            	int d = distBuffer.getInt(FIELD_SIZE * u.getId());
 				QueueItem newItem = new QueueItem(v.getId(), v.getTime(), d);
 				if (period == currentPeriod) {
 					Q.offer(newItem);
 				} else {
-					buffers[period].putInt(4 * counter[period], v.getId());
-					buffers[period].putInt(4 * (counter[period] + 1), v.getTime());
-					buffers[period].putInt(4 * (counter[period] + 2), d);
+					buffers[period].putInt(3 * FIELD_SIZE * counter[period], v.getId());
+					buffers[period].putInt(3 * FIELD_SIZE * (counter[period] + 1), v.getTime());
+					buffers[period].putInt(3 * FIELD_SIZE * (counter[period] + 2), d);
 					++counter[period];
 				}
 			}
@@ -209,7 +211,7 @@ public class LongestPath {
 	public static void main(String[] args) throws IOException {
 		int N = 9;
     	int edges = 3 * N;
-    	int bytes = 2 * 4 * edges;
+    	int bytes = 2 * FIELD_SIZE * edges;
     	
     	/*RandomAccessFile raf = new RandomAccessFile(new File("prueba.dat"), "rw");
     	FileChannel fc = raf.getChannel();
