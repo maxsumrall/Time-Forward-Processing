@@ -67,7 +67,7 @@ public class DataGenerator {
      */
     private void newEdge(int i, int j){
         if (this.buffer != null){
-            System.out.println(Integer.toString(i) + " " + Integer.toString(j));
+            //System.out.println(Integer.toString(i) + " " + Integer.toString(j));
             assert((i != 0)&&(j !=0));
             this.buffer.putInt(i);
             this.buffer.putInt(j);

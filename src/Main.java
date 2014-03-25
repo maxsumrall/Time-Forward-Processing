@@ -1,28 +1,25 @@
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.FileChannel;
-
+import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         /*Generate Data*/
         // 80000000 is about as big as this implementation can handle;
-        int n = 9;
+        int n = 10;
         double alpha = 0.5;
         DataGenerator dg = new DataGenerator();
         dg.GenerateData(n,alpha);
 
 
         /* Sort */
-        try{
-            IOVersion(n);
-        }
-        catch (Exception e){e.printStackTrace(); }
+        //IOVersion(n);
+        convertTXTtoBytes(new File("../../../randomgraphs/test10Mregular-edges"));
 
         //EdgeFinder search = new EdgeFinder(n);
         //System.out.println(search.getEdgesFrom(0));
-
 
 
         /* Testing what happens with huge data on small machine-- can ignore
@@ -63,16 +60,17 @@ public class Main {
         originSorter.sortSegments();
         originSorter.mergeSort();
 
-        printData(n, "originSorted");
+        //printData(n, "originSorted");
 
 
-        System.out.println("Beginning sort by Dest");
-        SortByDestination destSorter = new SortByDestination(n);
-        destSorter.sort(edgesFile);
-        printData(n, "destSorted");
+        //System.out.println("Beginning sort by Dest");
+        //SortByDestination destSorter = new SortByDestination(n);
+        //destSorter.sort(edgesFile);
+        //printData(n, "destSorted");
     }
     public static void printData(int n, String filenamepart) throws IOException{
-        RandomAccessFile in = new RandomAccessFile(filenamepart + n + ".dat","r");
+        //RandomAccessFile in = new RandomAccessFile(filenamepart + n + ".dat","r");
+        RandomAccessFile in = new RandomAccessFile(filenamepart +".dat","r");
         FileChannel fc = in.getChannel();
         int i = 0;
         MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY,0,fc.size());
@@ -81,5 +79,13 @@ public class Main {
             System.out.println(i++ + ": " + mbb.getInt() + ", " + mbb.getInt());
         }
         System.out.println("-----------");
+    }
+
+    public static void convertTXTtoBytes(File originFile) throws Exception{
+        Scanner in = new Scanner(originFile);
+        RandomAccessFile out = new RandomAccessFile(new File("outFileEdgesBytes.dat"), "rw");
+        while(in.hasNextInt()){
+            out.writeInt(in.nextInt());
+        }
     }
 }

@@ -53,7 +53,7 @@ public class IOSort {
             }
             this.edgesBuffer.reset();
             Collections.sort(temp);
-            System.out.println(temp);
+            //System.out.println(temp);
             for (IOEdge e: temp){
                 assert((e.getID() != 0)&&(e.getTo() != 0));
                 this.edgesBuffer.putInt(e.getID());
