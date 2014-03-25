@@ -107,7 +107,6 @@ public class TopologicalSorting {
         for (int i = 0; i < N; ++i)
         	indegreeBuffer.putInt(0);
         
-        indegreeBuffer.position(0);
     	int prev = -1;
     	HashSet<Integer> seen = new HashSet<Integer>();
         while (destBuffer.hasRemaining()) { //for each vertex
@@ -115,7 +114,7 @@ public class TopologicalSorting {
         	int v = destBuffer.getInt();
         	
         	if (v != prev) {
-        		indegreeBuffer.putInt(4 * v, 0);
+        		//indegreeBuffer.putInt(4 * v, 0);
         		seen.clear();
         	}
     		if (!seen.contains(u)) {
@@ -127,10 +126,10 @@ public class TopologicalSorting {
             prev = v;
         }
         
-        /*indegreeBuffer.position(0);
+        indegreeBuffer.position(0);
         for (int i = 0; i < N; ++i)
         	System.out.println(indegreeBuffer.getInt());
-        indegreeBuffer.position(0);*/
+        indegreeBuffer.position(0);
 
         destFileChannel.close();
         destRAFile.close();
@@ -138,7 +137,12 @@ public class TopologicalSorting {
         // Create the graph representation from the origin-sorted edge list
         RandomAccessFile originRAFile = new RandomAccessFile(new File("originSorted" + N + ".dat"),"rw");
     	FileChannel originFileChannel = originRAFile.getChannel();
-    	MappedByteBuffer originBuffer = originFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * 2 * N);
+    	MappedByteBuffer originBuffer = originFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * 2 * 3 * N);
+    	
+    	originBuffer.position(0);
+        while (originBuffer.hasRemaining())
+        	System.out.println(originBuffer.getInt() + ", " + originBuffer.getInt());
+        originBuffer.position(0);
     	
     	IOEdgesBuffer edges = new IOEdgesBuffer(N, "edges1.dat");
     	
@@ -172,6 +176,9 @@ public class TopologicalSorting {
     		++pointer;
     	}
     	
+    	System.out.println(vertices);
+    	System.out.println(edges);
+    	
     	originFileChannel.close();
         originRAFile.close();
     	
@@ -198,10 +205,8 @@ public class TopologicalSorting {
             sortedVertices.addVertex(v); //Clone So that java does not just do pointer changes
             for (int e = u.getEdges(), to = 0; e >= 0 && (to = edges.getEdge(e)) != -1; ++e) {
             	IOVertex w = vertices.getVertexAt(to);
-            	int curpos = indegreeBuffer.position();
                 int d = indegreeBuffer.getInt(4 * w.getId());
                 indegreeBuffer.putInt(4 * w.getId(), --d);
-                indegreeBuffer.position(curpos);
                 
                 if (d == 0)
                     Q.offer(w.getId());

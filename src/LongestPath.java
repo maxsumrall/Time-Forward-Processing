@@ -6,8 +6,9 @@ import java.util.*;
 public class LongestPath {
 	
 	static class QueueItem implements Comparable<QueueItem> {
-		int time, distance;
-		public QueueItem(int time, int distance) {
+		int id, time, distance;
+		public QueueItem(int id, int time, int distance) {
+			this.id = id;
 			this.time = time;
 			this.distance = distance;
 		}
@@ -108,7 +109,7 @@ public class LongestPath {
 			for (Edge e : u.getEdges()) {
 				Vertex v = e.getTo();
 				int period = v.getTime() / M;
-				QueueItem newItem = new QueueItem(v.getTime(), distance[u.getId()]);
+				QueueItem newItem = new QueueItem(v.getId(), v.getTime(), distance[u.getId()]);
 				if (period == currentPeriod) {
 					Q.offer(newItem);
 				} else {
@@ -126,29 +127,45 @@ public class LongestPath {
 	 * @param G
 	 * @return
 	 */
-	public static int[] IOLongestPathTimeForward(IOGraph G, int M) throws IOException {
+	public static void IOLongestPathTimeForward(IOGraph G, int M) throws IOException {
 		int N = G.getSize();
 		RandomAccessFile raf = new RandomAccessFile(new File("outputTF.dat"), "rw");
 		FileChannel fc = raf.getChannel();
-	    MappedByteBuffer buffer = fc.map(FileChannel.MapMode.READ_WRITE,0, 4 * N);
+	    MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, 4 * N);
 		
 		int B = (int)Math.ceil((double)N / M);
-		ArrayList<ArrayList<QueueItem>> files = new ArrayList<ArrayList<QueueItem>>();
-		for (int i = 0; i < B; ++i)
-			files.add(new ArrayList<QueueItem>());
 		
+		RandomAccessFile rafTf = new RandomAccessFile(new File("tf.tmp"), "rw");
+		FileChannel fcTf = raf.getChannel();
+		
+		MappedByteBuffer[] buffers = new MappedByteBuffer[B];
+		int[] counter = new int[B]; // Counts how many edges per buffer
+		
+		int nBytes = 4 * 3 * 10 * M; // 4 bytes * <id, time, dist> * max_indegree * M
+		for (int i = 0; i < B; ++i) {
+			buffers[i] = fcTf.map(FileChannel.MapMode.READ_WRITE, i * nBytes, nBytes);
+		}
+
 		int currentPeriod = -1;
 		PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
 		for (int i = 0; i < N; ++i) {
 			
-			Vertex u = topsort.get(i);
+			IOVertex u = G.getVertices().getVertexAt(i);
 			int time = u.getTime();
 			
 			if (time % M == 0) {
 				++currentPeriod;
 				Q.clear();
-				for (QueueItem x : files.get(currentPeriod))
-					Q.offer(x);
+				MappedByteBuffer buf = buffers[currentPeriod];
+				int curpos = buf.position();
+				buf.position(0);
+				for (int k = 0; k < counter[currentPeriod]; ++k) {
+					int id = buf.getInt();
+					int t = buf.getInt();
+					int dist = buf.getInt();
+					Q.offer(new QueueItem(id, t, dist));
+				}
+				buf.position(curpos);
 			}
 			
 			// Process current vertex
@@ -161,30 +178,63 @@ public class LongestPath {
 				maxDistance = Math.max(maxDistance, top.distance + 1);
 			}
 			
-			distance[u.getId()] = maxDistance;
+			distBuffer.putInt(4 * u.getId(), maxDistance);
 			
 			// Put information of neighbors in data structure
-			for (Edge e : u.getEdges()) {
-				Vertex v = e.getTo();
-				int period = v.getTime() / M;
-				QueueItem newItem = new QueueItem(v.getTime(), distance[u.getId()]);
+			for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
+            	IOVertex v = G.getVertices().getVertexAt(to);
+            	int period = v.getTime() / M;
+            	int d = distBuffer.getInt(4 * u.getId());
+				QueueItem newItem = new QueueItem(v.getId(), v.getTime(), d);
 				if (period == currentPeriod) {
 					Q.offer(newItem);
 				} else {
-					files.get(period).add(newItem);
+					buffers[period].putInt(4 * counter[period], v.getId());
+					buffers[period].putInt(4 * (counter[period] + 1), v.getTime());
+					buffers[period].putInt(4 * (counter[period] + 2), d);
+					++counter[period];
 				}
 			}
 		}
 		
-		return distance;
+		distBuffer.position(0);
+		System.out.println();
+		for (int i = 0; i < N; ++i)
+			System.out.println(distBuffer.getInt());
+		
+		fc.close();
+		raf.close();
+		fcTf.close();
+		rafTf.close();
 	}
 	
 	public static void main(String[] args) throws IOException {
-    	int edges = 8;
+		int N = 9;
+    	int edges = 3 * N;
     	int bytes = 2 * 4 * edges;
-    	int N = 8;
     	
-    	RandomAccessFile rafOrigin = new RandomAccessFile(new File("originSorted" + N + ".dat"), "rw");
+    	/*RandomAccessFile raf = new RandomAccessFile(new File("prueba.dat"), "rw");
+    	FileChannel fc = raf.getChannel();
+    	
+    	MappedByteBuffer[] buffers = new MappedByteBuffer[3];
+    	for (int i = 0; i < 3; ++i)
+    		buffers[i] = fc.map(FileChannel.MapMode.READ_WRITE, 4 * 5 * i, 4 * 5);
+    	
+    	int k = 1;
+    	for (int i = 0; i < 3; ++i) {
+    		for (int j = 0; j < 5; ++j)
+    			buffers[i].putInt(k++);
+    	}
+    	
+    	for (int i = 0; i < 3; ++i) {
+    		buffers[i].position(0);
+    		for (int j = 0; j < 5; ++j)
+    			System.out.println(buffers[i].getInt(4 * j));
+    	}
+    	
+    	raf.close();*/
+    	
+    	/*RandomAccessFile rafOrigin = new RandomAccessFile(new File("originSorted" + N + ".dat"), "rw");
     	FileChannel fcOrigin = rafOrigin.getChannel();
         MappedByteBuffer bufferOrigin = fcOrigin.map(FileChannel.MapMode.READ_WRITE,0,bytes);
 
@@ -214,17 +264,11 @@ public class LongestPath {
         bufferDest.putInt(6); bufferDest.putInt(7);
         
         fcDest.close();
-        rafDest.close();
+        rafDest.close();*/
         
         IOVertexBuffer vertices = new IOVertexBuffer(N, "vertices1.dat");
-        vertices.addVertex(new IOVertex(0, 0, 10, 20, -1));
-        vertices.addVertex(new IOVertex(1, 1, 10, 20, -1));
-        vertices.addVertex(new IOVertex(2, 2, 10, 20, -1));
-        vertices.addVertex(new IOVertex(3, 3, 10, 20, -1));
-        vertices.addVertex(new IOVertex(4, 4, 10, 20, -1));
-        vertices.addVertex(new IOVertex(5, 5, 10, 20, -1));
-        vertices.addVertex(new IOVertex(6, 6, 10, 20, -1));
-        vertices.addVertex(new IOVertex(7, 7, 10, 20, -1));
+        for (int i = 0; i < N; ++i)
+        	vertices.addVertex(new IOVertex(i, i, 10 * i, 10 * i, -1));
         
         try {
         	IOGraph graph = TopologicalSorting.IOTopologicalSortBFS(vertices, N);
@@ -232,8 +276,7 @@ public class LongestPath {
         	System.out.println(graph.getEdges());
         	
         	IOLongestPathDP(graph);
-        	
-        	
+        	IOLongestPathTimeForward(graph, N);
         } catch (Exception e) {
         	e.printStackTrace();
         }
