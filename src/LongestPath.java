@@ -157,7 +157,6 @@ public class LongestPath {
 				++currentPeriod;
 				Q.clear();
 				MappedByteBuffer buf = buffers[currentPeriod];
-				int curpos = buf.position();
 				buf.position(0);
 				for (int k = 0; k < counter[currentPeriod]; ++k) {
 					int id = buf.getInt();
@@ -165,7 +164,6 @@ public class LongestPath {
 					int dist = buf.getInt();
 					Q.offer(new QueueItem(id, t, dist));
 				}
-				buf.position(curpos);
 			}
 			
 			// Process current vertex
