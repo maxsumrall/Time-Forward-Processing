@@ -147,14 +147,14 @@ public class IOSort {
                         temp.putInt(x);
                         temp.putInt(PBuffer.getInt());//put both the values for the edge
                         PRemaining -= 8;
-                        if(PBuffer.hasRemaining()){x = PBuffer.getInt();}
+                        if(PRemaining > 0){x = PBuffer.getInt();}
                         else{temp.putInt(y); QRemaining -= 4;}
                     }
                     else{
                         temp.putInt(y);
                         temp.putInt(QBuffer.getInt());
                         QRemaining -= 8;
-                        if (QBuffer.hasRemaining()){y = QBuffer.getInt();}
+                        if (QRemaining > 0){y = QBuffer.getInt();}
                         else{temp.putInt(x); PRemaining -= 4;}
                     }
                 }
@@ -193,26 +193,26 @@ public class IOSort {
                 int x = PBuffer.getInt();
                 int y = QBuffer.getInt();
 
-                while(PBuffer.hasRemaining() && QBuffer.hasRemaining()){
+                while(PRemaining > 0 && QRemaining > 0){
                     //System.out.println(x+ " <--x, y-->"+y);
 
                     if (x < y){
                         temp.putInt(x);
                         temp.putInt(PBuffer.getInt());//put both the values for the edge
                         PRemaining -= 8;
-                        if(PBuffer.hasRemaining()){x = PBuffer.getInt();}
+                        if(PRemaining > 0){x = PBuffer.getInt();}
                         else{temp.putInt(y); QRemaining -= 4;}
                     }
                     else{
                         temp.putInt(y);
                         temp.putInt(QBuffer.getInt());
                         QRemaining -= 8;
-                        if (QBuffer.hasRemaining()){y = QBuffer.getInt();}
+                        if (QRemaining > 0){y = QBuffer.getInt();}
                         else{temp.putInt(x); PRemaining -= 4;}
                     }
                 }
-                while (PBuffer.hasRemaining()){temp.putInt(PBuffer.getInt());}
-                while(QBuffer.hasRemaining()){temp.putInt(QBuffer.getInt());}
+                while (PRemaining > 0){temp.putInt(PBuffer.getInt());PRemaining -= 4;}
+                while(QRemaining > 0){temp.putInt(QBuffer.getInt()); QRemaining -= 4;}
                 PBuffer.force();
                 QBuffer.force();
             }
