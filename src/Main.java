@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         /*Generate Data*/
         // 80000000 is about as big as this implementation can handle;
-        int n = 10;
+        int n = 10000000;
         double alpha = 0.5;
         DataGenerator dg = new DataGenerator();
         dg.GenerateData(n,alpha);
@@ -58,7 +58,7 @@ public class Main {
 
         originSorter.mergeSort();
 
-        //printData(n, "originSorted");
+        printData(n, "originSorted");
 
 
         System.out.println("Beginning sort by Dest");
@@ -66,8 +66,8 @@ public class Main {
         destSorter.sort(edgesFile);
 
         IOVertexBuffer IOVBuf = new IOVertexBuffer(n,"edges1.dat");
-        IOGraph G = TopologicalSorting.IOTopologicalSortBFS(IOVBuf,n);
-        System.out.println(G.getVertices());
+        //IOGraph G = TopologicalSorting.IOTopologicalSortBFS(IOVBuf,n);
+        //System.out.println(G.getVertices());
     }
 
 
