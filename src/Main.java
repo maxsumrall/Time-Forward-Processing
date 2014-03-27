@@ -68,7 +68,6 @@ public class Main {
         System.out.println("Beginning sort by Dest");
         SortByDestination destSorter = new SortByDestination(n);
         destSorter.sort(edgesFile);
-        //printData(n, "destSorted");
 
         IOVertexBuffer IOVBuf = new IOVertexBuffer(n,"edges1.dat");
         IOGraph G = TopologicalSorting.IOTopologicalSortBFS(IOVBuf,n);
