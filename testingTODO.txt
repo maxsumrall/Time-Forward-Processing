@@ -1,8 +1,0 @@
-Ideas of things to test:
-
-changing initial subset size vs. running time
-how many edges to sort vs. time
-java implementation vs. other implementations like unix's built-in sort (go to the terminal and type "sort")
-
-
-naïve implementation vs. TFP
