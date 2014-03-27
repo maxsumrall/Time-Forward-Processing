@@ -8,10 +8,10 @@ public class Main {
     public static void main(String[] args) throws Exception {
         /*Generate Data*/
         // 80000000 is about as big as this implementation can handle;
-        int n = 5000;
+        int n = 10000000;
         double alpha = 0.5;
-        //DataGenerator dg = new DataGenerator();
-        //dg.GenerateData(n,alpha);
+        DataGenerator dg = new DataGenerator();
+        dg.GenerateData(n,alpha);
 
 
         /* Sort */
@@ -54,21 +54,39 @@ public class Main {
 		System.exit(0);
 	}
     public static void IOVersion(int n) throws Exception{
-        //File edgesFile = new File("edgeData"+ n + ".dat");
-        File edgesFile = new File("outFileEdgesBytes.dat"); //for testing the given test files
+        File edgesFile = new File("edgeData"+ n + ".dat");
+        //File edgesFile = new File("outFileEdgesBytes.dat"); //for testing the given test files
         System.out.println("Beginning sort by Origin");
-        IOSort originSorter = new IOSort(edgesFile, 10000000, "originSorted");
+        IOSort originSorter = new IOSort(edgesFile, n, "originSorted");
         originSorter.sortSegments();
+
         originSorter.mergeSort();
 
-        printData(n, "originSorted");
+        //printData(n, "originSorted");
 
 
-        //System.out.println("Beginning sort by Dest");
-        //SortByDestination destSorter = new SortByDestination(n);
-        //destSorter.sort(edgesFile);
+        System.out.println("Beginning sort by Dest");
+        SortByDestination destSorter = new SortByDestination(n);
+        destSorter.sort(edgesFile);
         //printData(n, "destSorted");
+
+        IOVertexBuffer IOVBuf = new IOVertexBuffer(n,"edges1.dat");
+        IOGraph G = TopologicalSorting.IOTopologicalSortBFS(IOVBuf,n);
+        System.out.println(G.getVertices());
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
     public static void printData(int n, String filenamepart) throws IOException{
         RandomAccessFile in = new RandomAccessFile(filenamepart + n + ".dat","r");
        // RandomAccessFile in = new RandomAccessFile(filenamepart +".dat","r");
