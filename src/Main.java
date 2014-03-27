@@ -16,11 +16,7 @@ public class Main {
 
         /* Sort */
         IOVersion(n);
-        //convertTXTtoBytes(new File("../../../randomgraphs/test10Mregular-edges"));
-
-        //EdgeFinder search = new EdgeFinder(n);
-        //System.out.println(search.getEdgesFrom(0));
-
+        //convertTXTtoBytes(new File("../../../randomgraphs/test10Mregular-edges"))
 
         /* Testing what happens with huge data on small machine-- can ignore
         int[] nums = new int[50000000];
