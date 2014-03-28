@@ -8,32 +8,40 @@ public class Main {
     public static void main(String[] args) throws Exception {
         /*Generate Data*/
         // 80000000 is about as big as this implementation can handle;
-        int n = 10;
+        int n = Integer.parseInt(args[0]);
+        int m = Integer.parseInt(args[1]); //used in the TFP alg for the size of each period
         double alpha = 0.5;
         DataGenerator dg = new DataGenerator();
         dg.GenerateData(n,alpha);
 
         File edgesFile = new File("edgeData"+ n + ".dat");
         //File edgesFile = new File("outFileEdgesBytes.dat"); //for testing the given test files
-        System.out.println("Beginning sort by Origin");
+        //System.out.println("Beginning sort by Origin");
         IOSort originSorter = new IOSort(edgesFile, n, "originSorted");
         originSorter.sortSegments();
         originSorter.mergeSort();
 
         //printData(n, "originSorted");
 
-        System.out.println("Beginning sort by Dest");
+        //System.out.println("Beginning sort by Dest");
         SortByDestination destSorter = new SortByDestination(n);
         destSorter.sort(edgesFile);
 
 
         IOVertexBuffer IOVBuf = new IOVertexBuffer(n,"edges1.dat");
-        IOGraph G = TopologicalSorting.IOTopologicalSortBFS(IOVBuf,n);
-        //System.out.println(G.getVertices());
+        IOVertexBuffer vertices = new IOVertexBuffer(n, "vertices1.dat");
+        for (int i = 0; i < n; ++i)
+            vertices.addVertex(new IOVertex(i, i, 10 * i, 10 * i, -1));
+        IOGraph G = TopologicalSorting.IOTopologicalSortBFS(vertices,n);
+        long startTime = System.currentTimeMillis();
 
+        LongestPath.IOLongestPathTimeForward(G,m);
 
+         System.out.print("TFP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
-
+        startTime = System.currentTimeMillis();
+        LongestPath.IOLongestPathDP(G);
+        System.out.println(", DP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
 
         //convertTXTtoBytes(new File("../../../randomgraphs/test10Mregular-edges"))

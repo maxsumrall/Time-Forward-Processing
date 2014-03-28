@@ -26,7 +26,7 @@ public class DataGenerator {
      * @param alpha
      */
     public void GenerateData(int n, double alpha){
-        System.out.println("Beginning Data generation...");
+        //System.out.println("Beginning Data generation...");
         file = new File("edgeData" + Integer.toString(n) + ".dat");
         
         if (file.exists()) {
@@ -51,7 +51,7 @@ public class DataGenerator {
             this.newEdge(origin,origin+span);
         }
         //Done with generating and writing data, close everything.
-        System.out.println("Completed Data generation.");
+        //System.out.println("Completed Data generation.");
         this.buffer.force();
         try {
             this.fc.close();

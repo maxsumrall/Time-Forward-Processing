@@ -118,7 +118,7 @@ public class TopologicalSorting {
             
             prev = v;
         }
-        System.out.println("max indegree: " + maxIndegree);
+        //System.out.println("max indegree: " + maxIndegree);
         
         /*indegreeBuffer.position(0);
         for (int i = 0; i < N; ++i)
@@ -199,7 +199,6 @@ public class TopologicalSorting {
             sortedVertices.addVertex(v);
             for (int e = u.getEdges(), to = 0; e >= 0 && (to = edges.getEdge(e)) != -1; ++e) {
             	IOVertex w = vertices.getVertexAt(to);
-                System.out.println(w.getId());
                 int d = indegreeBuffer.getInt(4 * w.getId());
                 indegreeBuffer.putInt(4 * w.getId(), --d);
                 

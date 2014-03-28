@@ -39,7 +39,7 @@ public class IOSort {
         this.edgesBuffer = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, this.edgesFileChannel.size()); //Prepared to handle huge number of edges without consuming heap space
         //this.smallestSubsetSize = 50000;
         this.smallestSubsetSize = Math.min(2000000,this.N/2); //There is not enough room to sort more than 1mil in memory, but we want it to be smaller than N.
-        System.out.println("Smallest subset size: " + this.smallestSubsetSize);
+        //System.out.println("Smallest subset size: " + this.smallestSubsetSize);
 
 
     }

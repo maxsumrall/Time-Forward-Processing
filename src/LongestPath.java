@@ -62,10 +62,11 @@ public class LongestPath {
 		}
 		
 		buffer.position(0);
-		for (int i = 0; i < N; ++i)
+		/*
+        for (int i = 0; i < N; ++i)
 			System.out.print(buffer.getInt() + ", ");
 		System.out.println();
-		
+		*/
 		fc.close();
 		raf.close();
 		
@@ -201,10 +202,10 @@ public class LongestPath {
 		}
 		
 		distBuffer.position(0);
-		for (int i = 0; i < N; ++i)
+		/*for (int i = 0; i < N; ++i)
 			System.out.print(distBuffer.getInt() + ", ");
 		System.out.println();
-		
+		  */
 		fc.close();
 		raf.close();
 		fcTf.close();
