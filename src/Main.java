@@ -8,14 +8,34 @@ public class Main {
     public static void main(String[] args) throws Exception {
         /*Generate Data*/
         // 80000000 is about as big as this implementation can handle;
-        int n = 10000000;
+        int n = 10;
         double alpha = 0.5;
         DataGenerator dg = new DataGenerator();
         dg.GenerateData(n,alpha);
 
+        File edgesFile = new File("edgeData"+ n + ".dat");
+        //File edgesFile = new File("outFileEdgesBytes.dat"); //for testing the given test files
+        System.out.println("Beginning sort by Origin");
+        IOSort originSorter = new IOSort(edgesFile, n, "originSorted");
+        originSorter.sortSegments();
+        originSorter.mergeSort();
 
-        /* Sort */
-        IOVersion(n);
+        //printData(n, "originSorted");
+
+        System.out.println("Beginning sort by Dest");
+        SortByDestination destSorter = new SortByDestination(n);
+        destSorter.sort(edgesFile);
+
+
+        IOVertexBuffer IOVBuf = new IOVertexBuffer(n,"edges1.dat");
+        IOGraph G = TopologicalSorting.IOTopologicalSortBFS(IOVBuf,n);
+        //System.out.println(G.getVertices());
+
+
+
+
+
+
         //convertTXTtoBytes(new File("../../../randomgraphs/test10Mregular-edges"))
 
         /* Testing what happens with huge data on small machine-- can ignore
@@ -49,38 +69,6 @@ public class Main {
 		*/
 		System.exit(0);
 	}
-    public static void IOVersion(int n) throws Exception{
-        File edgesFile = new File("edgeData"+ n + ".dat");
-        //File edgesFile = new File("outFileEdgesBytes.dat"); //for testing the given test files
-        System.out.println("Beginning sort by Origin");
-        IOSort originSorter = new IOSort(edgesFile, n, "originSorted");
-        originSorter.sortSegments();
-
-        originSorter.mergeSort();
-
-        printData(n, "originSorted");
-
-
-        System.out.println("Beginning sort by Dest");
-        SortByDestination destSorter = new SortByDestination(n);
-        destSorter.sort(edgesFile);
-
-        IOVertexBuffer IOVBuf = new IOVertexBuffer(n,"edges1.dat");
-        //IOGraph G = TopologicalSorting.IOTopologicalSortBFS(IOVBuf,n);
-        //System.out.println(G.getVertices());
-    }
-
-
-
-
-
-
-
-
-
-
-
-
 
     public static void printData(int n, String filenamepart) throws IOException{
         RandomAccessFile in = new RandomAccessFile(filenamepart + n + ".dat","r");
