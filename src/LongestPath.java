@@ -61,8 +61,8 @@ public class LongestPath {
 			}
 		}
 		
-		buffer.position(0);
-		for (int i = 0; i < N; ++i)
+		buffer.position((N - 20) * 4);
+		for (int i = 0; i < 20; ++i)
 			System.out.print(buffer.getInt() + ", ");
 		System.out.println();
 		
@@ -87,9 +87,8 @@ public class LongestPath {
 		for (int i = 0; i < T; ++i) {
 			
 			Vertex u = topsort.get(i);
-			int time = u.getTime();
 			
-			if (time % M == 0) {
+			if (u.getTime() % M == 0) {
 				++currentPeriod;
 				Q.clear();
 				for (QueueItem x : files.get(currentPeriod))
@@ -100,7 +99,7 @@ public class LongestPath {
 			int maxDistance = 0;
 			while (!Q.isEmpty()) {
 				QueueItem top = Q.peek();
-				if (top.time != time)
+				if (top.time != u.getTime())
 					break;
 				Q.poll();
 				maxDistance = Math.max(maxDistance, top.distance + 1);
@@ -138,7 +137,8 @@ public class LongestPath {
 		
 		int B = (int)Math.ceil((double)N / M);
 		
-		RandomAccessFile rafTf = new RandomAccessFile(new File("tf.tmp"), "rw");
+		File fileTf = new File("tf.tmp");
+		RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
 		FileChannel fcTf = raf.getChannel();
 		
 		MappedByteBuffer[] buffers = new MappedByteBuffer[B];
@@ -156,9 +156,8 @@ public class LongestPath {
 		for (int i = 0; i < N; ++i) {
 			
 			IOVertex u = G.getVertices().getVertexAt(i);
-			int time = u.getTime();
 			
-			if (time % M == 0) {
+			if (u.getTime() % M == 0) {
 				++currentPeriod;
 				Q.clear();
 				MappedByteBuffer buf = buffers[currentPeriod];
@@ -175,7 +174,7 @@ public class LongestPath {
 			int maxDistance = 0;
 			while (!Q.isEmpty()) {
 				QueueItem top = Q.peek();
-				if (top.time != time)
+				if (top.time != u.getTime())
 					break;
 				Q.poll();
 				maxDistance = Math.max(maxDistance, top.distance + 1);
@@ -188,11 +187,11 @@ public class LongestPath {
             	IOVertex v = G.getVertices().getVertexAt(to);
             	int period = v.getTime() / M;
             	int d = distBuffer.getInt(FIELD_SIZE * u.getId());
-				QueueItem newItem = new QueueItem(v.getId(), v.getTime(), d);
+				QueueItem newItem = new QueueItem(to, v.getTime(), d);
 				if (period == currentPeriod) {
 					Q.offer(newItem);
 				} else {
-					buffers[period].putInt(3 * FIELD_SIZE * counter[period], v.getId());
+					buffers[period].putInt(3 * FIELD_SIZE * counter[period], to);
 					buffers[period].putInt(3 * FIELD_SIZE * counter[period] + FIELD_SIZE, v.getTime());
 					buffers[period].putInt(3 * FIELD_SIZE * counter[period] + 2 * FIELD_SIZE, d);
 					++counter[period];
@@ -200,8 +199,8 @@ public class LongestPath {
 			}
 		}
 		
-		distBuffer.position(0);
-		for (int i = 0; i < N; ++i)
+		distBuffer.position((N - 20) * 4);
+		for (int i = 0; i < 20; ++i)
 			System.out.print(distBuffer.getInt() + ", ");
 		System.out.println();
 		
@@ -209,10 +208,13 @@ public class LongestPath {
 		raf.close();
 		fcTf.close();
 		rafTf.close();
+		
+		if (fileTf.exists())
+			fileTf.delete();
 	}
 	
 	public static void main(String[] args) throws IOException {
-		int N = 5000;
+		int N = 50000;
         
         IOVertexBuffer vertices = new IOVertexBuffer(N, "vertices1.dat");
         for (int i = 0; i < N; ++i)
@@ -233,7 +235,7 @@ public class LongestPath {
         	
         	System.out.println("Regular DP:");
         	int[] dist = LongestPathDP(G);
-        	for (int i = 0; i < N; ++i)
+        	for (int i = N - 20; i < N; ++i)
     			System.out.print(dist[i] + ", ");
         	System.out.println();
         	
@@ -242,7 +244,7 @@ public class LongestPath {
         	
         	System.out.println("Regular TF");
         	int[] dist2 = LongestPathTimeForward(G, 5);
-        	for (int i = 0; i < N; ++i)
+        	for (int i = N - 20; i < N; ++i)
     			System.out.print(dist2[i] + ", ");
         	System.out.println();
         	

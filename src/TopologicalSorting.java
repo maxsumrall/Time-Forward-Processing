@@ -203,7 +203,9 @@ public class TopologicalSorting {
         while (!Q.isEmpty()) {
             int uid = Q.poll();
             IOVertex u = vertices.getVertexAt(uid);
-            IOVertex v = new IOVertex(uid, time++, u.getX(), u.getY(), pointer);
+            vertices.setTimeAt(uid, time);
+            IOVertex v = new IOVertex(time, time, u.getX(), u.getY(), pointer);
+            ++time;
             
             sortedVertices.addVertex(v); //Clone So that java does not just do pointer changes
             for (int e = u.getEdges(), to = 0; e >= 0 && (to = edges.getEdge(e)) != -1; ++e) {
@@ -220,6 +222,17 @@ public class TopologicalSorting {
             sortedEdges.addEdge(-1);
             ++pointer;
         }
+        
+        MappedByteBuffer edgesTmp = sortedEdges.edgesBuffer;
+        edgesTmp.position(0);
+        int ind = 0;
+        while (edgesTmp.hasRemaining()) {
+        	int to = edgesTmp.getInt();
+        	++ind;
+        	if (to < 0 || to >= N) continue;
+        	int newid = vertices.getVertexAt(to).getTime();
+        	edgesTmp.putInt(4 * (ind - 1), newid);
+        }
 
         indegreeFileChannel.close();
         RAFile.close();
@@ -228,56 +241,5 @@ public class TopologicalSorting {
         	indegreeFile.delete();
 
         return new IOGraph(N, sortedVertices, sortedEdges);
-    }
-    
-    public static void main(String[] args) throws IOException {
-    	int N = 10;
-    	int edges = 3 * N;
-    	int bytes = 2 * 4 * edges;
-    	
-    	
-    	/*RandomAccessFile rafOrigin = new RandomAccessFile(new File("originSorted" + N + ".dat"), "rw");
-    	FileChannel fcOrigin = rafOrigin.getChannel();
-        MappedByteBuffer bufferOrigin = fcOrigin.map(FileChannel.MapMode.READ_WRITE,0,bytes);
-
-        bufferOrigin.putInt(0); bufferOrigin.putInt(1);
-        bufferOrigin.putInt(0); bufferOrigin.putInt(2);
-        bufferOrigin.putInt(1); bufferOrigin.putInt(6);
-        bufferOrigin.putInt(2); bufferOrigin.putInt(5);
-        bufferOrigin.putInt(3); bufferOrigin.putInt(2);
-        bufferOrigin.putInt(3); bufferOrigin.putInt(5);
-        bufferOrigin.putInt(4); bufferOrigin.putInt(1);
-        bufferOrigin.putInt(6); bufferOrigin.putInt(7);
-        
-        fcOrigin.close();
-        rafOrigin.close();
-        
-        RandomAccessFile rafDest = new RandomAccessFile(new File("destSorted" + N + ".dat"), "rw");
-    	FileChannel fcDest = rafDest.getChannel();
-        MappedByteBuffer bufferDest = fcDest.map(FileChannel.MapMode.READ_WRITE,0,bytes);
-
-        bufferDest.putInt(0); bufferDest.putInt(1);
-        bufferDest.putInt(4); bufferDest.putInt(1);
-        bufferDest.putInt(0); bufferDest.putInt(2);
-        bufferDest.putInt(3); bufferDest.putInt(2);
-        bufferDest.putInt(2); bufferDest.putInt(5);
-        bufferDest.putInt(3); bufferDest.putInt(5);
-        bufferDest.putInt(1); bufferDest.putInt(6);
-        bufferDest.putInt(6); bufferDest.putInt(7);
-        
-        fcDest.close();
-        rafDest.close();*/
-        
-        IOVertexBuffer vertices = new IOVertexBuffer(N, "vertices1.dat");
-        for (int i = 0; i < N; ++i)
-        	vertices.addVertex(new IOVertex(i, i, 10 * i, 10 * i, -1));
-        
-        try {
-        	IOGraph graph = IOTopologicalSortBFS(vertices, N);
-        	System.out.println(graph.getVertices());
-        	System.out.println(graph.getEdges());
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }
     }
 }
