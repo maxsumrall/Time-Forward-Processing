@@ -62,6 +62,15 @@ public class IOVertexBuffer {
 		verticesBuffer.position(curpos);
 	}
 	
+	public void setTimeAt(int id, int time) {
+		int curpos = verticesBuffer.position();
+		int pos = NUM_FIELDS * FIELD_SIZE * id + FIELD_SIZE;
+		
+		verticesBuffer.putInt(pos, time);
+		
+		verticesBuffer.position(curpos);
+	}
+	
 	public String toString() {
 		StringBuilder ans = new StringBuilder();
 		for (int i = 0; i < size; ++i)

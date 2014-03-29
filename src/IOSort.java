@@ -37,8 +37,9 @@ public class IOSort {
         this.N = n;
         this.edgesBufferSize =  (N*3*2*4+8);
         this.edgesBuffer = this.edgesFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, this.edgesFileChannel.size()); //Prepared to handle huge number of edges without consuming heap space
+        //this.smallestSubsetSize = 50000;
         this.smallestSubsetSize = Math.min(2000000,this.N/2); //There is not enough room to sort more than 1mil in memory, but we want it to be smaller than N.
-        System.out.println("Smallest subset size: " + this.smallestSubsetSize);
+        //System.out.println("Smallest subset size: " + this.smallestSubsetSize);
 
 
     }
@@ -134,29 +135,35 @@ public class IOSort {
                 PBuffer = P.map(FileChannel.MapMode.READ_WRITE,currentIndex,subsetSize);
                 QBuffer = Q.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, subsetSize);
 
-
+                int PRemaining = PBuffer.remaining();
+                int QRemaining = QBuffer.remaining();
                 int x = PBuffer.getInt();
                 int y = QBuffer.getInt();
 
-                while(PBuffer.hasRemaining() && QBuffer.hasRemaining()){
+                while(PRemaining > 0 && QRemaining > 0){
                     //System.out.println(x+ " <--x, y-->"+y);
 
                     if (x < y){
                         temp.putInt(x);
                         temp.putInt(PBuffer.getInt());//put both the values for the edge
-                        if(PBuffer.hasRemaining()){x = PBuffer.getInt();}
-                        else{temp.putInt(y);}
+                        PRemaining -= 8;
+                        if(PRemaining > 0){x = PBuffer.getInt();}
+                        else{temp.putInt(y); QRemaining -= 4;}
                     }
                     else{
                         temp.putInt(y);
                         temp.putInt(QBuffer.getInt());
-                        if (QBuffer.hasRemaining()){y = QBuffer.getInt();}
-                        else{temp.putInt(x);}
+                        QRemaining -= 8;
+                        if (QRemaining > 0){y = QBuffer.getInt();}
+                        else{temp.putInt(x); PRemaining -= 4;}
                     }
                 }
                 //Either P or Q has been emptied, so the other one with remaining elements should be dumped into Temp
-                while (PBuffer.hasRemaining()){temp.putInt(PBuffer.getInt());}
-                while(QBuffer.hasRemaining()){temp.putInt(QBuffer.getInt());}
+                //while (PBuffer.hasRemaining()){temp.putInt(PBuffer.getInt());}
+                while (PRemaining > 0){temp.putInt(PBuffer.getInt());PRemaining -= 4;}
+
+                //while(QBuffer.hasRemaining()){temp.putInt(QBuffer.getInt());}
+                while(QRemaining > 0){temp.putInt(QBuffer.getInt()); QRemaining -= 4;}
                 PBuffer.force();
                 QBuffer.force();
                 currentIndex += 2*subsetSize;
@@ -169,7 +176,8 @@ public class IOSort {
                 //less than one subset, should already be in order so we can just copy
                 //tempFileChannel.transferFrom(P,tempFileChannel.position(),this.BYTES_IN_FILE-currentIndex);
                 PBuffer = P.map(FileChannel.MapMode.READ_WRITE,currentIndex,this.BYTES_IN_FILE-currentIndex);
-                while(PBuffer.hasRemaining()){temp.putInt(PBuffer.getInt());}
+                int PRemaining = PBuffer.remaining();
+                while(PRemaining > 0){temp.putInt(PBuffer.getInt()); PRemaining -= 4;}
 
 
             }
@@ -180,28 +188,31 @@ public class IOSort {
                 PBuffer = P.map(FileChannel.MapMode.READ_WRITE,currentIndex,subsetSize);
                 QBuffer = Q.map(FileChannel.MapMode.READ_WRITE,currentIndex+subsetSize, this.BYTES_IN_FILE - currentIndex - subsetSize);
 
-
+                int PRemaining = PBuffer.remaining();
+                int QRemaining = QBuffer.remaining();
                 int x = PBuffer.getInt();
                 int y = QBuffer.getInt();
 
-                while(PBuffer.hasRemaining() && QBuffer.hasRemaining()){
+                while(PRemaining > 0 && QRemaining > 0){
                     //System.out.println(x+ " <--x, y-->"+y);
 
                     if (x < y){
                         temp.putInt(x);
                         temp.putInt(PBuffer.getInt());//put both the values for the edge
-                        if(PBuffer.hasRemaining()){x = PBuffer.getInt();}
-                        else{temp.putInt(y);}
+                        PRemaining -= 8;
+                        if(PRemaining > 0){x = PBuffer.getInt();}
+                        else{temp.putInt(y); QRemaining -= 4;}
                     }
                     else{
                         temp.putInt(y);
                         temp.putInt(QBuffer.getInt());
-                        if (QBuffer.hasRemaining()){y = QBuffer.getInt();}
-                        else{temp.putInt(x);}
+                        QRemaining -= 8;
+                        if (QRemaining > 0){y = QBuffer.getInt();}
+                        else{temp.putInt(x); PRemaining -= 4;}
                     }
                 }
-                while (PBuffer.hasRemaining()){temp.putInt(PBuffer.getInt());}
-                while(QBuffer.hasRemaining()){temp.putInt(QBuffer.getInt());}
+                while (PRemaining > 0){temp.putInt(PBuffer.getInt());PRemaining -= 4;}
+                while(QRemaining > 0){temp.putInt(QBuffer.getInt()); QRemaining -= 4;}
                 PBuffer.force();
                 QBuffer.force();
             }

@@ -212,8 +212,8 @@ public class LongestPath {
         
         try {
         	IOGraph graph = TopologicalSorting.IOTopologicalSortBFS(vertices, N);
-        	//System.out.println(graph.getVertices());
-        	//System.out.println(graph.getEdges());
+        	System.out.println(graph.getVertices());
+        	System.out.println(graph.getEdges());
         	
         	Graph G = new Graph(N);
         	for (int i = 0; i < N; ++i) {

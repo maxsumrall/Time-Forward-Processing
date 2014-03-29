@@ -73,16 +73,7 @@ public class TopologicalSorting {
 		
 		return topsort;
 	}
-    /*
-    * I'm thinking we can model the queue used here as a buffer easily.
-    * We can make a class or function to handle it and write our own get() and put() methods.
-    * We would make a big buffer, the size of the number of vertices, but its not going to be all used.
-    * Its going to "waste" a lot of space on the disk, but disk space is cheap and this file would be deleted afterwards anyways.
-    * How it works:
-    * We have two pointers/markers for the buffer: the first for the next read position and the second for the next write position
-    * When you want to read the next vertex, move the read pointer of the buffer to this first pointer and read the bytes there, and increment our pointer.
-    * When you want to write another vertex, more the pointer of the buffer to the second pointer and start writing, and update out second pointer.
-    * */
+
 
 	public static IOGraph IOTopologicalSortBFS(IOVertexBuffer vertices, int N) throws Exception{
     	
@@ -127,7 +118,7 @@ public class TopologicalSorting {
             
             prev = v;
         }
-        System.out.println("max indegree: " + maxIndegree);
+        //System.out.println("max indegree: " + maxIndegree);
         
         /*indegreeBuffer.position(0);
         for (int i = 0; i < N; ++i)
@@ -207,7 +198,7 @@ public class TopologicalSorting {
             IOVertex v = new IOVertex(time, time, u.getX(), u.getY(), pointer);
             ++time;
             
-            sortedVertices.addVertex(v); //Clone So that java does not just do pointer changes
+            sortedVertices.addVertex(v);
             for (int e = u.getEdges(), to = 0; e >= 0 && (to = edges.getEdge(e)) != -1; ++e) {
             	IOVertex w = vertices.getVertexAt(to);
                 int d = indegreeBuffer.getInt(4 * w.getId());

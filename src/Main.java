@@ -8,19 +8,43 @@ public class Main {
     public static void main(String[] args) throws Exception {
         /*Generate Data*/
         // 80000000 is about as big as this implementation can handle;
-        int n = 5000;
+        int n = Integer.parseInt(args[0]);
+        int m = Integer.parseInt(args[1]); //used in the TFP alg for the size of each period
         double alpha = 0.5;
-        //DataGenerator dg = new DataGenerator();
-        //dg.GenerateData(n,alpha);
+        DataGenerator dg = new DataGenerator();
+        dg.GenerateData(n,alpha);
+
+        File edgesFile = new File("edgeData"+ n + ".dat");
+        //File edgesFile = new File("outFileEdgesBytes.dat"); //for testing the given test files
+        //System.out.println("Beginning sort by Origin");
+        IOSort originSorter = new IOSort(edgesFile, n, "originSorted");
+        originSorter.sortSegments();
+        originSorter.mergeSort();
+
+        //printData(n, "originSorted");
+
+        //System.out.println("Beginning sort by Dest");
+        SortByDestination destSorter = new SortByDestination(n);
+        destSorter.sort(edgesFile);
 
 
-        /* Sort */
-        IOVersion(n);
-        //convertTXTtoBytes(new File("../../../randomgraphs/test10Mregular-edges"));
+        IOVertexBuffer IOVBuf = new IOVertexBuffer(n,"edges1.dat");
+        IOVertexBuffer vertices = new IOVertexBuffer(n, "vertices1.dat");
+        for (int i = 0; i < n; ++i)
+            vertices.addVertex(new IOVertex(i, i, 10 * i, 10 * i, -1));
+        IOGraph G = TopologicalSorting.IOTopologicalSortBFS(vertices,n);
+        long startTime = System.currentTimeMillis();
 
-        //EdgeFinder search = new EdgeFinder(n);
-        //System.out.println(search.getEdgesFrom(0));
+        LongestPath.IOLongestPathTimeForward(G,m);
 
+         System.out.print("TFP: " + String.valueOf(System.currentTimeMillis() - startTime));
+
+        startTime = System.currentTimeMillis();
+        LongestPath.IOLongestPathDP(G);
+        System.out.println(", DP: " + String.valueOf(System.currentTimeMillis() - startTime));
+
+
+        //convertTXTtoBytes(new File("../../../randomgraphs/test10Mregular-edges"))
 
         /* Testing what happens with huge data on small machine-- can ignore
         int[] nums = new int[50000000];
@@ -53,22 +77,7 @@ public class Main {
 		*/
 		System.exit(0);
 	}
-    public static void IOVersion(int n) throws Exception{
-        //File edgesFile = new File("edgeData"+ n + ".dat");
-        File edgesFile = new File("outFileEdgesBytes.dat"); //for testing the given test files
-        System.out.println("Beginning sort by Origin");
-        IOSort originSorter = new IOSort(edgesFile, 10000000, "originSorted");
-        originSorter.sortSegments();
-        originSorter.mergeSort();
 
-        printData(n, "originSorted");
-
-
-        //System.out.println("Beginning sort by Dest");
-        //SortByDestination destSorter = new SortByDestination(n);
-        //destSorter.sort(edgesFile);
-        //printData(n, "destSorted");
-    }
     public static void printData(int n, String filenamepart) throws IOException{
         RandomAccessFile in = new RandomAccessFile(filenamepart + n + ".dat","r");
        // RandomAccessFile in = new RandomAccessFile(filenamepart +".dat","r");
