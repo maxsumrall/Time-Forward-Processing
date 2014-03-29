@@ -60,12 +60,7 @@ public class LongestPath {
 				buffer.putInt(FIELD_SIZE * to, newDist);
 			}
 		}
-		
-		buffer.position((N - 20) * 4);
-		for (int i = 0; i < 20; ++i)
-			System.out.print(buffer.getInt() + ", ");
-		System.out.println();
-		
+
 		fc.close();
 		raf.close();
 		
@@ -198,12 +193,7 @@ public class LongestPath {
 				}
 			}
 		}
-		
-		distBuffer.position((N - 20) * 4);
-		for (int i = 0; i < 20; ++i)
-			System.out.print(distBuffer.getInt() + ", ");
-		System.out.println();
-		
+
 		fc.close();
 		raf.close();
 		fcTf.close();
