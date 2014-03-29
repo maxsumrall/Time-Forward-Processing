@@ -85,7 +85,7 @@ public class Main {
     }
 
     public static void convertTXTtoBytes(String originFile) throws Exception{
-        Scanner in = new Scanner(new File("../../../randomgraphs" + originFile));
+        Scanner in = new Scanner(new File("../../../randomgraphs/" + originFile));
         RandomAccessFile out = new RandomAccessFile(new File("../../randomgraphsMine/" + originFile + ".dat"), "rw");
         while(in.hasNextInt()){
             out.writeInt(in.nextInt());
