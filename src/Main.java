@@ -8,6 +8,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         /*Generate Data*/
         // 80000000 is about as big as this implementation can handle;
+        /*
         int n = Integer.parseInt(args[0]);
         int m = Integer.parseInt(args[1]); //used in the TFP alg for the size of each period
         double alpha = 0.5;
@@ -46,41 +47,33 @@ public class Main {
 
         //convertTXTtoBytes(new File("../../../randomgraphs/test10Mregular-edges"))
 
-        /* Testing what happens with huge data on small machine-- can ignore
-        int[] nums = new int[50000000];
-        for (int i = 0; i < 50000000; i++){
-            nums[i] = (int)Math.random()*50000000;
-        }
-        Arrays.sort(nums);
         */
 
-		/* Origional code for generating data
-		Scanner in = new Scanner(new File("edges.txt"));
-		
-		int N = in.nextInt();
-		Graph G = new Graph(N);
-		while (in.hasNextInt()) {
-			int u = in.nextInt();
-			int v = in.nextInt();
-			
-			G.addEdge(u, v);
-		}
+        convertTXTtoBytes("test25regular-edges");
+        convertTXTtoBytes("test500regular-edges");
+        convertTXTtoBytes("test3000regular-edges");
+        convertTXTtoBytes("test10Kregular-edges");
+        convertTXTtoBytes("test200Kregular-edges");
+        convertTXTtoBytes("test3Mregular-edges");
+        convertTXTtoBytes("test10Mregular-edges");
+        convertTXTtoBytes("test30Mregular-edges");
+        convertTXTtoBytes("test50Mregular-edges");
 
-        DataGenerator dg = new DataGenerator();
-        dg.GenerateData(40,0.5);
-		
-		System.out.println(TopologicalSorting.TopologicalSortBFS(G));
-		System.out.println(Arrays.toString(LongestPath.LongestPathDP(G)));
-		System.out.println(Arrays.toString(LongestPath.LongestPathTimeForward(G, 2)));
-		
-		in.close();
-		*/
+        convertTXTtoBytes("test25regular-point");
+        convertTXTtoBytes("test500regular-points");
+        convertTXTtoBytes("test3000regular-points");
+        convertTXTtoBytes("test10Kregular-points");
+        convertTXTtoBytes("test200Kregular-points");
+        convertTXTtoBytes("test3Mregular-points");
+        convertTXTtoBytes("test10Mregular-points");
+        convertTXTtoBytes("test30Mregular-points");
+        convertTXTtoBytes("test50Mregular-points");
 		System.exit(0);
 	}
 
     public static void printData(int n, String filenamepart) throws IOException{
-        RandomAccessFile in = new RandomAccessFile(filenamepart + n + ".dat","r");
-       // RandomAccessFile in = new RandomAccessFile(filenamepart +".dat","r");
+        //RandomAccessFile in = new RandomAccessFile(filenamepart + n + ".dat","r");
+        RandomAccessFile in = new RandomAccessFile(filenamepart +".dat","r");
         FileChannel fc = in.getChannel();
         int i = 0;
         MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY,0,fc.size());
@@ -91,9 +84,9 @@ public class Main {
         System.out.println("-----------");
     }
 
-    public static void convertTXTtoBytes(File originFile) throws Exception{
-        Scanner in = new Scanner(originFile);
-        RandomAccessFile out = new RandomAccessFile(new File("outFileEdgesBytes.dat"), "rw");
+    public static void convertTXTtoBytes(String originFile) throws Exception{
+        Scanner in = new Scanner(new File("../../../randomgraphs" + originFile));
+        RandomAccessFile out = new RandomAccessFile(new File("../../randomgraphsMine/" + originFile + ".dat"), "rw");
         while(in.hasNextInt()){
             out.writeInt(in.nextInt());
         }
