@@ -57,8 +57,9 @@ public class Main {
         convertTXTtoBytes("test3Mregular-edges");
         convertTXTtoBytes("test10Mregular-edges");
         convertTXTtoBytes("test30Mregular-edges");
+        System.out.println("123");
         convertTXTtoBytes("test50Mregular-edges");
-
+        System.out.println("Done with edges");
         convertTXTtoBytes("test25regular-point");
         convertTXTtoBytes("test500regular-points");
         convertTXTtoBytes("test3000regular-points");
@@ -66,6 +67,7 @@ public class Main {
         convertTXTtoBytes("test200Kregular-points");
         convertTXTtoBytes("test3Mregular-points");
         convertTXTtoBytes("test10Mregular-points");
+        System.out.println("456");
         convertTXTtoBytes("test30Mregular-points");
         convertTXTtoBytes("test50Mregular-points");
 		System.exit(0);
