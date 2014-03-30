@@ -10,7 +10,7 @@ public class Main {
         // 80000000 is about as big as this implementation can handle;
         int n = Integer.parseInt(args[0]);
         int m = Integer.parseInt(args[1]); //used in the TFP alg for the size of each period
-
+        /*
         double alpha = 0.5;
         DataGenerator dg = new DataGenerator();
         dg.GenerateData(n,alpha);
@@ -24,7 +24,7 @@ public class Main {
         System.out.println("Beginning sort by Dest");
         SortByDestination destSorter = new SortByDestination(n);
         destSorter.sort(edgesFile);
-
+         */
 
 
         IOVertexBuffer IOVBuf = new IOVertexBuffer(n,"edges1.dat");
@@ -33,11 +33,11 @@ public class Main {
             vertices.addVertex(new IOVertex(i, i, 10 * i, 10 * i, -1));
         long startTime = System.currentTimeMillis();
         IOGraph G = TopologicalSorting.IOTopologicalSortBFS(vertices,n);
-        System.out.print("TopoSorting: " + String.valueOf(System.currentTimeMillis() - startTime));
+        System.out.println("TopoSorting: " + String.valueOf(System.currentTimeMillis() - startTime));
 
         startTime = System.currentTimeMillis();
         LongestPath.IOLongestPathTimeForward(G,m);
-        System.out.print("TFP: " + String.valueOf(System.currentTimeMillis() - startTime));
+        System.out.println("TFP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
         startTime = System.currentTimeMillis();
         LongestPath.IOLongestPathDP(G);
