@@ -10,27 +10,22 @@ public class Main {
         // 80000000 is about as big as this implementation can handle;
         int n = Integer.parseInt(args[0]);
         int m = Integer.parseInt(args[1]); //used in the TFP alg for the size of each period
-        /*
+
         double alpha = 0.5;
         DataGenerator dg = new DataGenerator();
         dg.GenerateData(n,alpha);
-        */
-        //File edgesFile = new File("edgeData"+ n + ".dat");
-        File edgesFile = new File(args[2]);
-        //File edgesFile = new File("outFileEdgesBytes.dat"); //for testing the given test files
-        //System.out.println("Beginning sort by Origin");
-       /*
+
+        File edgesFile = new File("edgeData"+ n + ".dat");
+        //File edgesFile = new File(args[2]);
+        System.out.println("Beginning sort by Origin");
         IOSort originSorter = new IOSort(edgesFile, n, "originSorted");
         originSorter.sortSegments();
         originSorter.mergeSort();
-
-        //printData(n, "originSorted");
-
-        //System.out.println("Beginning sort by Dest");
+        System.out.println("Beginning sort by Dest");
         SortByDestination destSorter = new SortByDestination(n);
         destSorter.sort(edgesFile);
 
-         */
+
 
         IOVertexBuffer IOVBuf = new IOVertexBuffer(n,"edges1.dat");
         IOVertexBuffer vertices = new IOVertexBuffer(n, "vertices1.dat");
