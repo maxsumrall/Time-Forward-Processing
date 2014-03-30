@@ -14,27 +14,27 @@ public class IOGraph {
 		this.edges = edges;
 	}
 
-	public IOVertexBuffer getVertices() {
+	final IOVertexBuffer getVertices() {
 		return vertices;
 	}
 
-	public void setVertices(IOVertexBuffer vertices) {
+	final void setVertices(IOVertexBuffer vertices) {
 		this.vertices = vertices;
 	}
 
-	public IOEdgesBuffer getEdges() {
+	final IOEdgesBuffer getEdges() {
 		return edges;
 	}
 
-	public void setEdges(IOEdgesBuffer edges) {
+	final void setEdges(IOEdgesBuffer edges) {
 		this.edges = edges;
 	}
 
-	public int getSize() {
+	final int getSize() {
 		return size;
 	}
 
-	public void setSize(int size) {
+	final void setSize(int size) {
 		this.size = size;
 	}
 }

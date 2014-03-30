@@ -18,11 +18,11 @@ public class IOEdgesBuffer {
 		edgesBuffer = edgesFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, FIELD_SIZE * size); // <dest>	
 	}
 	
-	public void addEdge(int to) {
+	final void addEdge(int to) {
 		this.edgesBuffer.putInt(to);
 	}
 	
-	public int getEdge(int position) {
+	final int getEdge(int position) {
 		int curpos = edgesBuffer.position();
 		int pos = position * FIELD_SIZE;
 		

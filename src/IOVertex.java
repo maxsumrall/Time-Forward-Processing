@@ -17,43 +17,43 @@ public class IOVertex {
 		this.y = y;
 	}
 
-	public int getTime() {
+	final int getTime() {
 		return time;
 	}
 
-	public void setTime(int time) {
+	final void setTime(int time) {
 		this.time = time;
 	}
 
-	public int getId() {
+	final int getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	final void setId(int id) {
 		this.id = id;
 	}
 
-	public int getX() {
+	final int getX() {
 		return x;
 	}
 
-	public void setX(int x) {
+	final void setX(int x) {
 		this.x = x;
 	}
 
-	public int getY() {
+	final int getY() {
 		return y;
 	}
 
-	public void setY(int y) {
+	final void setY(int y) {
 		this.y = y;
 	}
 
-	public int getEdges() {
+	final int getEdges() {
 		return edges;
 	}
 
-	public void setEdges(int edges) {
+	final void setEdges(int edges) {
 		this.edges = edges;
 	}
 	
