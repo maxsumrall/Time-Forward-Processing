@@ -10,55 +10,50 @@ public class Main {
         // 80000000 is about as big as this implementation can handle;
         int n = Integer.parseInt(args[0]);
         int m = Integer.parseInt(args[1]); //used in the TFP alg for the size of each period
+
+        IOGraph G;
+        if (args[2].equals("a")) {
+
+            generateAndSort(n); //
+
+            File edgesFile = new File("edgeData" + n + ".dat");
+            //File edgesFile = new File(args[2]);
+
+
+            //re-do topo sort
+            IOEdgesBuffer edges = new IOEdgesBuffer(n, "edges1.dat");
+            IOVertexBuffer vertices = new IOVertexBuffer(n, "vertices1.dat");
+            for (int i = 0; i < n; ++i)
+                vertices.addVertex(new IOVertex(i, i, 10 * i, 10 * i, -1));
+
+            long startTime = System.currentTimeMillis();
+            G = TopologicalSorting.IOTopologicalSortBFS(vertices, n);
+            System.out.println("TopoSorting: " + String.valueOf(System.currentTimeMillis() - startTime));
+        }
+        else if(args[2].equals("b")){
+            //reuse toposorted lists
+            IOEdgesBuffer edges = new IOEdgesBuffer(n, n + "edges2.dat");
+            IOVertexBuffer vertices = new IOVertexBuffer(n, n + "vertices2.dat");
+            G = new IOGraph(n, vertices, edges);
+
         /*
-        double alpha = 0.5;
-        DataGenerator dg = new DataGenerator();
-        dg.GenerateData(n,alpha);
+        startTime = System.currentTimeMillis();
+        LongestPath.IOLongestPathTimeForward(G,m);
+        System.out.println("TFP: " + String.valueOf(System.currentTimeMillis() - startTime));
+        */
 
-        File edgesFile = new File("edgeData"+ n + ".dat");
-        //File edgesFile = new File(args[2]);
-        System.out.println("Beginning sort by Origin");
-        IOSort originSorter = new IOSort(edgesFile, n, "originSorted");
-        originSorter.sortSegments();
-        originSorter.mergeSort();
-        System.out.println("Beginning sort by Dest");
-        SortByDestination destSorter = new SortByDestination(n);
-        destSorter.sort(edgesFile);
-         */
-
-
-        IOVertexBuffer IOVBuf = new IOVertexBuffer(n,"edges1.dat");
-        IOVertexBuffer vertices = new IOVertexBuffer(n, "vertices1.dat");
-        for (int i = 0; i < n; ++i)
-            vertices.addVertex(new IOVertex(i, i, 10 * i, 10 * i, -1));
         long startTime = System.currentTimeMillis();
-        IOGraph G = TopologicalSorting.IOTopologicalSortBFS(vertices,n);
-        System.out.println("TopoSorting: " + String.valueOf(System.currentTimeMillis() - startTime));
+        LongestPath.IOLongestPathDP(G);
+        System.out.println("DP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
-        //startTime = System.currentTimeMillis();
-        //LongestPath.IOLongestPathTimeForward(G,m);
-        //System.out.println("TFP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
         startTime = System.currentTimeMillis();
         LongestPath.IOLongestPathTimeForwardExperiment(G,m);
         System.out.println("TFPexperiment: " + String.valueOf(System.currentTimeMillis() - startTime));
 
+        }
+        else{System.out.println("missing arg 3: a or b");System.exit(0);}
 
-        startTime = System.currentTimeMillis();
-        LongestPath.IOLongestPathDP(G);
-        System.out.println("DP: " + String.valueOf(System.currentTimeMillis() - startTime));
-
-
-        //convertTXTtoBytes("test3Mregular-edges-OriginSorted");
-        //convertTXTtoBytes("test3Mregular-edges-DestSorted");
-        //convertTXTtoBytes("test10Mregular-edges-OriginSorted");
-        //convertTXTtoBytes("test10Mregular-edges-DestSorted");
-        //-convertTXTtoBytes("test30Mregular-edges-OriginSorted");
-        //-convertTXTtoBytes("test30Mregular-edges-DestSorted");
-        //convertTXTtoBytes("test50Mregular-edges-OriginSorted");
-        //convertTXTtoBytes("test50Mregular-edges-DestSorted");
-
-        //printData();
         System.exit(0);
 	}
 
@@ -91,10 +86,19 @@ public class Main {
         }catch(Exception e){
             System.out.println("Done");
         }
+    }
 
-
-
-
-
+    public static void generateAndSort(int n) throws Exception{
+        File edgesFile = new File("edgeData"+ n + ".dat");
+        double alpha = 0.5;
+        DataGenerator dg = new DataGenerator();
+        dg.GenerateData(n,alpha);
+        System.out.println("Beginning sort by Origin");
+        IOSort originSorter = new IOSort(edgesFile, n, "originSorted");
+        originSorter.sortSegments();
+        originSorter.mergeSort();
+        System.out.println("Beginning sort by Dest");
+        SortByDestination destSorter = new SortByDestination(n);
+        destSorter.sort(edgesFile);
     }
 }

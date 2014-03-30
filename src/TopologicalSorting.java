@@ -177,8 +177,8 @@ public class TopologicalSorting {
         originRAFile.close();
     	
         // Run the actual topological sorting algorithm
-        IOVertexBuffer sortedVertices = new IOVertexBuffer(N, "vertices2.dat");
-        IOEdgesBuffer sortedEdges = new IOEdgesBuffer(N, "edges2.dat");
+        IOVertexBuffer sortedVertices = new IOVertexBuffer(N, N+"vertices2.dat");
+        IOEdgesBuffer sortedEdges = new IOEdgesBuffer(N, N+"edges2.dat");
         
         Queue<Integer> Q = new LinkedList<Integer>();
                 

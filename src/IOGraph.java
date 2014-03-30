@@ -30,11 +30,11 @@ public class IOGraph {
 		this.edges = edges;
 	}
 
-	final int getSize() {
+	public int getSize() {
 		return size;
 	}
 
-	final void setSize(int size) {
+	public void setSize(int size) {
 		this.size = size;
 	}
 }
