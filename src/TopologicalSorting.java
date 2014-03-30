@@ -217,8 +217,7 @@ public class TopologicalSorting {
         MappedByteBuffer edgesTmp = sortedEdges.edgesBuffer;
         edgesTmp.position(0);
         int ind = 0;
-        int remCount = edgesTmp.remaining();
-        for(int i = 0; i < remCount; i++){
+        while (edgesTmp.hasRemaining()) {
         	int to = edgesTmp.getInt();
         	++ind;
         	if (to < 0 || to >= N) continue;
