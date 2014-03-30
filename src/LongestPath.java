@@ -1,5 +1,6 @@
 import java.io.*;
 import java.nio.MappedByteBuffer;
+import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
 
@@ -65,7 +66,7 @@ public class LongestPath {
 		raf.close();
 		
 	}
-	
+	/*
 	public static int[] LongestPathTimeForward(Graph G, int M) {
 		ArrayList<Vertex> topsort = TopologicalSorting.TopologicalSortBFS(G);
 		int T = G.getSize();
@@ -117,7 +118,7 @@ public class LongestPath {
 		
 		return distance;
 	}
-	
+	*/
 	/**
 	 * The graph is assumed to be in topological order.
 	 * 
@@ -202,7 +203,90 @@ public class LongestPath {
 		if (fileTf.exists())
 			fileTf.delete();
 	}
-	
+
+
+    public static void IOLongestPathTimeForwardExperiment(IOGraph G, int M) throws IOException {
+        int N = G.getSize();
+        RandomAccessFile raf = new RandomAccessFile(new File("outputTF.dat"), "rw");
+        FileChannel fc = raf.getChannel();
+        MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
+
+        int B = (int)Math.ceil((double)N / M);
+
+        File fileTf = new File("tf.tmp");
+        RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
+        FileChannel fcTf = raf.getChannel();
+
+        ByteBuffer[] buffers = new ByteBuffer[B];
+        int[] counter = new int[B]; // Counts how many edges per buffer
+
+        int maxIndegree = 20;
+
+        int nBytes = FIELD_SIZE * 3 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
+        for (int i = 0; i < B; ++i) {
+            //buffers[i] = fcTf.map(FileChannel.MapMode.READ_WRITE, i * nBytes, nBytes);
+            buffers[i] = ByteBuffer.allocateDirect(nBytes);
+        }
+
+        int currentPeriod = -1;
+
+        PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
+        for (int i = 0; i < N; ++i) {
+
+            IOVertex u = G.getVertices().getVertexAt(i);
+
+            if (u.getTime() % M == 0) {
+                ++currentPeriod;
+                Q.clear();
+                ByteBuffer buf = buffers[currentPeriod];
+                buf.position(0);
+                for (int k = 0; k < counter[currentPeriod]; ++k) {
+                    int id = buf.getInt();
+                    int t = buf.getInt();
+                    int dist = buf.getInt();
+                    Q.offer(new QueueItem(id, t, dist));
+                }
+            }
+
+            // Process current vertex
+            int maxDistance = 0;
+            while (!Q.isEmpty()) {
+                QueueItem top = Q.peek();
+                if (top.time != u.getTime())
+                    break;
+                Q.poll();
+                maxDistance = Math.max(maxDistance, top.distance + 1);
+            }
+
+            distBuffer.putInt(FIELD_SIZE * u.getId(), maxDistance);
+
+            // Put information of neighbors in data structure
+            for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
+                IOVertex v = G.getVertices().getVertexAt(to);
+                int period = v.getTime() / M;
+                int d = distBuffer.getInt(FIELD_SIZE * u.getId());
+                QueueItem newItem = new QueueItem(to, v.getTime(), d);
+                if (period == currentPeriod) {
+                    Q.offer(newItem);
+                } else {
+                    buffers[period].putInt(3 * FIELD_SIZE * counter[period], to);
+                    buffers[period].putInt(3 * FIELD_SIZE * counter[period] + FIELD_SIZE, v.getTime());
+                    buffers[period].putInt(3 * FIELD_SIZE * counter[period] + 2 * FIELD_SIZE, d);
+                    ++counter[period];
+                }
+            }
+        }
+        fc.close();
+        raf.close();
+        fcTf.close();
+        rafTf.close();
+
+        if (fileTf.exists())
+            fileTf.delete();
+    }
+
+
+	/*
 	public static void main(String[] args) throws IOException {
 		int N = 50000;
         
@@ -245,4 +329,5 @@ public class LongestPath {
         	e.printStackTrace();
         }
     }
+    */
 }
