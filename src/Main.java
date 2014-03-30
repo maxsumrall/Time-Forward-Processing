@@ -40,10 +40,6 @@ public class Main {
         System.out.println("TFP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
         startTime = System.currentTimeMillis();
-        LongestPath.IOLongestPathTimeForwardExperiment(G,m);
-        System.out.println("TFP-Exp: " + String.valueOf(System.currentTimeMillis() - startTime));
-
-        startTime = System.currentTimeMillis();
         LongestPath.IOLongestPathDP(G);
         System.out.println(", DP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
