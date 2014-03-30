@@ -40,8 +40,13 @@ public class Main {
         System.out.println("TFP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
         startTime = System.currentTimeMillis();
+        LongestPath.IOLongestPathTimeForwardExperiment(G,m);
+        System.out.println("TFPexperiment: " + String.valueOf(System.currentTimeMillis() - startTime));
+
+
+        startTime = System.currentTimeMillis();
         LongestPath.IOLongestPathDP(G);
-        System.out.println(", DP: " + String.valueOf(System.currentTimeMillis() - startTime));
+        System.out.println("DP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
 
         //convertTXTtoBytes("test3Mregular-edges-OriginSorted");

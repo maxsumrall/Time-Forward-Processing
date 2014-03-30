@@ -7,7 +7,7 @@ import java.util.*;
 public class LongestPath {
 	
 	static final int FIELD_SIZE = 4; // 4 bytes
-	
+
 	static class QueueItem implements Comparable<QueueItem> {
 		int id, time, distance;
 		public QueueItem(int id, int time, int distance) {
@@ -207,25 +207,26 @@ public class LongestPath {
 
     public static void IOLongestPathTimeForwardExperiment(IOGraph G, int M) throws IOException {
         int N = G.getSize();
-        RandomAccessFile raf = new RandomAccessFile(new File("outputTF.dat"), "rw");
+        File outputTF = new File("outputTF.dat");
+        RandomAccessFile raf = new RandomAccessFile(outputTF, "rw");
         FileChannel fc = raf.getChannel();
         MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
 
         int B = (int)Math.ceil((double)N / M);
 
         File fileTf = new File("tf.tmp");
-        RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
-        FileChannel fcTf = raf.getChannel();
+        //RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
+        //FileChannel fcTf = raf.getChannel();
 
-        ByteBuffer[] buffers = new ByteBuffer[B];
+        MappedFileBuffer[] buffers = new MappedFileBuffer[B];
         int[] counter = new int[B]; // Counts how many edges per buffer
 
         int maxIndegree = 20;
 
-        int nBytes = FIELD_SIZE * 3 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
+        long nBytes = FIELD_SIZE * 3 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
         for (int i = 0; i < B; ++i) {
             //buffers[i] = fcTf.map(FileChannel.MapMode.READ_WRITE, i * nBytes, nBytes);
-            buffers[i] = ByteBuffer.allocateDirect(nBytes);
+            buffers[i] = new MappedFileBuffer(fileTf,1000,true,nBytes);
         }
 
         int currentPeriod = -1;
@@ -238,12 +239,12 @@ public class LongestPath {
             if (u.getTime() % M == 0) {
                 ++currentPeriod;
                 Q.clear();
-                ByteBuffer buf = buffers[currentPeriod];
-                buf.position(0);
+                MappedFileBuffer buf = buffers[currentPeriod];
+                long pos = 0;
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
-                    int id = buf.getInt();
-                    int t = buf.getInt();
-                    int dist = buf.getInt();
+                    int id = buf.getInt(pos); pos +=4;
+                    int t = buf.getInt(pos); pos += 4;
+                    int dist = buf.getInt(pos); pos +=4;
                     Q.offer(new QueueItem(id, t, dist));
                 }
             }
@@ -278,8 +279,8 @@ public class LongestPath {
         }
         fc.close();
         raf.close();
-        fcTf.close();
-        rafTf.close();
+       // fcTf.close();
+       // rafTf.close();
 
         if (fileTf.exists())
             fileTf.delete();
