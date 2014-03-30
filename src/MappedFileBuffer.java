@@ -179,6 +179,7 @@ implements BufferFacade, Cloneable
             {
                 long remainingFileSize = fileSize - offset;
                 long thisSegmentSize = Math.min(2L * segmentSize, remainingFileSize);
+                System.out.println(thisSegmentSize);
                 _buffers[bufIdx++] = channel.map(mapMode, offset, thisSegmentSize);
             }
         }

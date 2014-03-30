@@ -35,9 +35,9 @@ public class Main {
         IOGraph G = TopologicalSorting.IOTopologicalSortBFS(vertices,n);
         System.out.println("TopoSorting: " + String.valueOf(System.currentTimeMillis() - startTime));
 
-        startTime = System.currentTimeMillis();
-        LongestPath.IOLongestPathTimeForward(G,m);
-        System.out.println("TFP: " + String.valueOf(System.currentTimeMillis() - startTime));
+        //startTime = System.currentTimeMillis();
+        //LongestPath.IOLongestPathTimeForward(G,m);
+        //System.out.println("TFP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
         startTime = System.currentTimeMillis();
         LongestPath.IOLongestPathTimeForwardExperiment(G,m);

@@ -226,7 +226,7 @@ public class LongestPath {
         long nBytes = FIELD_SIZE * 3 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
         for (int i = 0; i < B; ++i) {
             //buffers[i] = fcTf.map(FileChannel.MapMode.READ_WRITE, i * nBytes, nBytes);
-            buffers[i] = new MappedFileBuffer(fileTf,1000,true,nBytes);
+            buffers[i] = new MappedFileBuffer(fileTf,0x8000000,true,nBytes);
         }
 
         int currentPeriod = -1;
