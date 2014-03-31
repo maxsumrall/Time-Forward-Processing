@@ -275,6 +275,7 @@ public class LongestPath {
             IOVertex u = G.getVertices().getVertexAt(i);
 
             if (u.getTime() % M == 0) {
+                if(currentPeriod%40 == 0){System.out.println(currentPeriod/(float)B + "%");}
                 ++currentPeriod;
                 Q.clear();
                 MappedFileBuffer buf = buffers[currentPeriod];
