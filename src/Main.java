@@ -42,18 +42,18 @@ public class Main {
         System.out.println("TFP: " + String.valueOf(System.currentTimeMillis() - startTime));
         */
 
-        long startTime = System.currentTimeMillis();
-        LongestPath.IOLongestPathDP(G);
-        System.out.println("DP: " + String.valueOf(System.currentTimeMillis() - startTime));
-
-        startTime = System.currentTimeMillis();
-        LongestPath.IOLongestPathDPUnsafe(G);
-        System.out.println("DP: " + String.valueOf(System.currentTimeMillis() - startTime));
-
+        //long startTime = System.currentTimeMillis();
+        //LongestPath.IOLongestPathDP(G);
+        //System.out.println("DP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
         //startTime = System.currentTimeMillis();
-        //LongestPath.IOLongestPathTimeForwardExperiment(G,m);
-        //System.out.println("TFPexperiment: " + String.valueOf(System.currentTimeMillis() - startTime));
+        //LongestPath.IOLongestPathDPUnsafe(G);
+        //System.out.println("DPunsafe: " + String.valueOf(System.currentTimeMillis() - startTime));
+
+
+        long startTime = System.currentTimeMillis();
+        LongestPath.IOLongestPathTimeForwardExperiment(G,m);
+        System.out.println("TFPexperiment: " + String.valueOf(System.currentTimeMillis() - startTime));
 
         }
         else{System.out.println("missing arg 3: a or b");System.exit(0);}
