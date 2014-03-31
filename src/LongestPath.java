@@ -66,6 +66,23 @@ public class LongestPath {
 		raf.close();
 		
 	}
+    public static void IOLongestPathDPUnsafe(IOGraph G) throws Exception {
+        int N = G.getSize();
+        SuperArray longPath = new SuperArray((long)N);
+        for (int i = 0; i < N; ++i)
+            longPath.putInt(i,0);
+
+        for (int i = 0; i < N; ++i) {
+            IOVertex u = G.getVertices().getVertexAt(i);
+            for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
+
+                int distU = longPath.getInt(u.getId());
+                int distV = longPath.getInt(to);
+                int newDist = Math.max(distV, distU + 1);
+                longPath.putInt(to, newDist);
+            }
+        }
+    }
 	/*
 	public static int[] LongestPathTimeForward(Graph G, int M) {
 		ArrayList<Vertex> topsort = TopologicalSorting.TopologicalSortBFS(G);
@@ -140,7 +157,7 @@ public class LongestPath {
 		MappedByteBuffer[] buffers = new MappedByteBuffer[B];
 		int[] counter = new int[B]; // Counts how many edges per buffer
 		
-		int maxIndegree = 20;
+		int maxIndegree = 10;
 		
 		int nBytes = FIELD_SIZE * 3 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
 		for (int i = 0; i < B; ++i) {
