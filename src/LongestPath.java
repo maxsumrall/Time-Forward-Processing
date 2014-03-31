@@ -88,26 +88,26 @@ public class LongestPath {
         }
     }
 	/*
-    
+
     /**
 	 * Non I/O efficient implementation of the time forward processing algorithm.
 	 * It uses a MappedByteBuffer on top of a random access file.
-	 * 
+	 *
 	 * @param G: object representation of the graph.
 	 * M: number of vertices per period.
 	 */
 	public static int[] LongestPathTimeForward(Graph G, int M) {
 		ArrayList<Vertex> topsort = TopologicalSorting.TopologicalSortBFS(G);
 		int N = G.getSize();
-		
+
 		int[] distance = new int[N];
-		
+
 		// Initialize list of "files"
 		int B = (int)Math.ceil((double)N / M);
 		ArrayList<ArrayList<QueueItem>> files = new ArrayList<ArrayList<QueueItem>>();
 		for (int i = 0; i < B; ++i)
 			files.add(new ArrayList<QueueItem>());
-		
+
 		int currentPeriod = -1;
 		PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
 		for (int i = 0; i < N; ++i) {
@@ -120,7 +120,7 @@ public class LongestPath {
 				for (QueueItem x : files.get(currentPeriod))
 					Q.offer(x);
 			}
-			
+
 			// Process current vertex
 			int maxDistance = 0;
 			while (!Q.isEmpty()) {
@@ -130,9 +130,9 @@ public class LongestPath {
 				Q.poll();
 				maxDistance = Math.max(maxDistance, top.distance + 1);
 			}
-			
+
 			distance[u.getId()] = maxDistance;
-			
+
 			// Put information of neighbors in data structure
 			for (Edge e : u.getEdges()) {
 				Vertex v = e.getTo();
@@ -145,38 +145,38 @@ public class LongestPath {
 				}
 			}
 		}
-		
+
 		return distance;
 	}
 
 	/**
 	 * I/O efficient implementation of the time forward processing algorithm.
 	 * It uses a MappedByteBuffer on top of a random access file.
-	 * 
+	 *
 	 * @param G: topologically sorted graph represented with buffers.
 	 * M: number of vertices per period.
 	 */
 	public static void IOLongestPathTimeForward(IOGraph G, int M) throws IOException {
 		int N = G.getSize();
-		
+
 		// Buffer that stores the longest path lengths
 		RandomAccessFile raf = new RandomAccessFile(new File("outputTF.dat"), "rw");
 		FileChannel fc = raf.getChannel();
 	    MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
-		
+
 		int B = (int)Math.ceil((double)N / M);
-		
+
 		// Temporary random access file for the files corresponding to the periods.
 		// The temporary files are in consecutive blocks
 		File fileTf = new File("tf.tmp");
 		RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
 		FileChannel fcTf = raf.getChannel();
-		
+
 		MappedByteBuffer[] buffers = new MappedByteBuffer[B];
 		int[] counter = new int[B]; // Counts how many edges per buffer
-		
+
 		int maxIndegree = 10;
-		
+
 		int nBytes = FIELD_SIZE * 3 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
 		for (int i = 0; i < B; ++i) {
 			// starting position for each buffer in the file is i*nBytes
