@@ -21,6 +21,11 @@ public class LongestPath {
 		}
 	}
 	
+	/**
+	 * Non I/O efficient implementation of the dynamic programming algorithm.
+	 * @param G: object representation of the graph
+	 * @return
+	 */
 	public static int[] LongestPathDP(Graph G) {
 		ArrayList<Vertex> topsort = TopologicalSorting.TopologicalSortBFS(G);
 		
@@ -37,8 +42,7 @@ public class LongestPath {
 	/**
 	 * The graph is assumed to be in topological order.
 	 * 
-	 * @param G
-	 * @return
+	 * @param G: topologically sorted graph represented with buffers.
 	 */
     public static void IOLongestPathDP(IOGraph G) throws IOException {
 		int N = G.getSize();
@@ -84,26 +88,35 @@ public class LongestPath {
         }
     }
 	/*
+    
+    /**
+	 * Non I/O efficient implementation of the time forward processing algorithm.
+	 * It uses a MappedByteBuffer on top of a random access file.
+	 * 
+	 * @param G: object representation of the graph.
+	 * M: number of vertices per period.
+	 */
 	public static int[] LongestPathTimeForward(Graph G, int M) {
 		ArrayList<Vertex> topsort = TopologicalSorting.TopologicalSortBFS(G);
-		int T = G.getSize();
+		int N = G.getSize();
 		
-		int[] distance = new int[T];
+		int[] distance = new int[N];
 		
-		int B = (int)Math.ceil((double)T / M);
+		// Initialize list of "files"
+		int B = (int)Math.ceil((double)N / M);
 		ArrayList<ArrayList<QueueItem>> files = new ArrayList<ArrayList<QueueItem>>();
 		for (int i = 0; i < B; ++i)
 			files.add(new ArrayList<QueueItem>());
 		
 		int currentPeriod = -1;
 		PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
-		for (int i = 0; i < T; ++i) {
-			
+		for (int i = 0; i < N; ++i) {
 			Vertex u = topsort.get(i);
-			
+			// If this vertex if the first of a new period...
 			if (u.getTime() % M == 0) {
 				++currentPeriod;
 				Q.clear();
+				// Load all contents of file into the queue
 				for (QueueItem x : files.get(currentPeriod))
 					Q.offer(x);
 			}
@@ -135,21 +148,26 @@ public class LongestPath {
 		
 		return distance;
 	}
-	*/
+
 	/**
-	 * The graph is assumed to be in topological order.
+	 * I/O efficient implementation of the time forward processing algorithm.
+	 * It uses a MappedByteBuffer on top of a random access file.
 	 * 
-	 * @param G
-	 * @return
+	 * @param G: topologically sorted graph represented with buffers.
+	 * M: number of vertices per period.
 	 */
 	public static void IOLongestPathTimeForward(IOGraph G, int M) throws IOException {
 		int N = G.getSize();
+		
+		// Buffer that stores the longest path lengths
 		RandomAccessFile raf = new RandomAccessFile(new File("outputTF.dat"), "rw");
 		FileChannel fc = raf.getChannel();
 	    MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
 		
 		int B = (int)Math.ceil((double)N / M);
 		
+		// Temporary random access file for the files corresponding to the periods.
+		// The temporary files are in consecutive blocks
 		File fileTf = new File("tf.tmp");
 		RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
 		FileChannel fcTf = raf.getChannel();
@@ -161,6 +179,7 @@ public class LongestPath {
 		
 		int nBytes = FIELD_SIZE * 3 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
 		for (int i = 0; i < B; ++i) {
+			// starting position for each buffer in the file is i*nBytes
 			buffers[i] = fcTf.map(FileChannel.MapMode.READ_WRITE, i * nBytes, nBytes);
 		}
 
@@ -168,12 +187,13 @@ public class LongestPath {
 
         PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
         for (int i = 0; i < N; ++i) {
-
             IOVertex u = G.getVertices().getVertexAt(i);
 
+            // If this vertex if the first of a new period...
             if (u.getTime() % M == 0) {
                 ++currentPeriod;
                 Q.clear();
+                // Load all contents of file into the queue
                 MappedByteBuffer buf = buffers[currentPeriod];
                 buf.position(0);
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
