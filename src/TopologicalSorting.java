@@ -11,42 +11,18 @@ import java.util.*;
  * test
  */
 public class TopologicalSorting {
-	private static boolean[] seen;
-	private static ArrayList<Vertex> topsort;
-	
-	public static ArrayList<Vertex> TopologicalSortDFS(Graph G) {
-		topsort = new ArrayList<Vertex>();
-		int N = G.getSize();
-		seen = new boolean[N];
-		
-		for (int i = 0; i < N; ++i) {
-			if (!seen[i]) {
-				Stack<Vertex> S = new Stack<Vertex>();
-				S.push(G.getVertexAt(i));
-				while (!S.isEmpty()) {
-					Vertex v = S.pop();
-					topsort.add(v);
-					seen[v.getId()] = true;
-					for (Edge edge : v.getEdges()) {
-						Vertex w = edge.getTo();
-						if (!seen[w.getId()])
-							S.push(w);
-					}
-				}
-			}
-		}
-		
-		return topsort;
-	}
-
     /**
-     * -----------------Does this really put the items in order in memory or does it swap pointers
-     * @param G
+     * Non I/O efficient implementation of topological sorting, used only for
+     * comparisons with the I/O efficient
+     * 
+     * @param G: Object representation of the graph
      * @return
      */
 	public static ArrayList<Vertex> TopologicalSortBFS(Graph G) {
 		int N = G.getSize();
 		Queue<Vertex> Q = new LinkedList<Vertex>();
+		
+		// Resulting list of vertices in topological sorting
 		ArrayList<Vertex> topsort = new ArrayList<Vertex>();
 		int[] inDegree = new int[N];
 
@@ -74,9 +50,19 @@ public class TopologicalSorting {
 		return topsort;
 	}
 
-
+	/**
+	 * I/O efficient implementation of topological sorting, based on the same approach as 
+	 * above version. Used MappedByteBuffers on top of random access files to manage the
+	 * paging of arrays between memory and disk.
+	 * 
+	 * @param vertices: Original vertices in the same order as the input
+	 * @param N: Number of vertices
+	 * @return Graph with the vertices in topological order, and edges also ordered
+	 * the same as the vertices.
+	 */
 	public static IOGraph IOTopologicalSortBFS(IOVertexBuffer vertices, int N) throws Exception{
     	
+		// Buffer that will contain the indegree for each vertex allocated with N integers
 		File indegreeFile = new File("indegree.tmp");
     	RandomAccessFile RAFile = new RandomAccessFile(indegreeFile,"rw");
     	FileChannel indegreeFileChannel = RAFile.getChannel();
@@ -99,16 +85,15 @@ public class TopologicalSorting {
         	indegreeBuffer.putInt(0);
         
     	int prev = -1;
+    	// If there are repeated edges, don't count them twice
     	HashSet<Integer> seen = new HashSet<Integer>();
-    	int maxIndegree = 0;
+    	int maxIndegree = 0; // Just to see what the max indegree is
         while (destBuffer.hasRemaining()) { //for each vertex
         	int u = destBuffer.getInt();
         	int v = destBuffer.getInt();
         	
-        	if (v != prev) {
-        		//indegreeBuffer.putInt(4 * v, 0);
+        	if (v != prev)
         		seen.clear();
-        	}
     		if (!seen.contains(u)) {
 	            int d = indegreeBuffer.getInt(4 * v);
 	            indegreeBuffer.putInt(4 * v, d + 1);
@@ -131,6 +116,7 @@ public class TopologicalSorting {
         // Create the graph representation from the origin-sorted edge list
         RandomAccessFile originRAFile = new RandomAccessFile(new File("originSorted" + N + ".dat"),"rw");
     	FileChannel originFileChannel = originRAFile.getChannel();
+    	// 4 bytes * <origin, destination> * (3N)
     	MappedByteBuffer originBuffer = originFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * 2 * 3 * N);
     	
     	/*originBuffer.position(0);
@@ -138,25 +124,32 @@ public class TopologicalSorting {
         	System.out.println(originBuffer.getInt() + ", " + originBuffer.getInt());
         originBuffer.position(0);*/
     	
+    	
+    	// Create the edges buffer based on the origin-sorted edge list
     	IOEdgesBuffer edges = new IOEdgesBuffer(N, "edges1.dat");
     	
     	int pointer = 0;
     	prev = -1;
+    	// If there are repeated edges, don't store them twice
     	seen = new HashSet<Integer>();
     	while (originBuffer.hasRemaining()) {
     		int u = originBuffer.getInt();
         	int v = originBuffer.getInt();
         	
+        	// If this is the first edge of current vertex...
         	if (prev != u) {
         		if (prev >= 0) {
+        			// If a vertex doesn't have outgoing edges, put NULL in edge list
         			for (int j = prev; j < u; ++j) {
         				edges.addEdge(-1);
         				++pointer;
         			}
         		}
+        		// Set the pointer to the index of first edge in the edges buffer for the current vertex
         		vertices.setEdgesAt(u, pointer);
         		seen.clear();
         	}
+        	// Add edge if it doesn't exist yet
         	if (!seen.contains(v)) {
         		seen.add(v);
         		edges.addEdge(v);
@@ -165,6 +158,7 @@ public class TopologicalSorting {
         	
         	prev = u;
     	}
+    	// If the last vertices don't have outgoing edges, add NULLs to edge buffer
     	for (int j = prev; j < N; ++j) {
     		edges.addEdge(-1);
     		++pointer;
@@ -189,11 +183,13 @@ public class TopologicalSorting {
             	Q.offer(i);
         }
 
-        int time = 0;
-        pointer = 0;
+        int time = 0;// Index of vertex in topological sorting
+        pointer = 0;// Pointer to the current position in edge buffer
         while (!Q.isEmpty()) {
             int uid = Q.poll();
             IOVertex u = vertices.getVertexAt(uid);
+            // Store the new position of this vertex in the topological sorting,
+            // to map later the old id to the new one
             vertices.setTimeAt(uid, time);
             IOVertex v = new IOVertex(time, time, u.getX(), u.getY(), pointer);
             ++time;
@@ -214,6 +210,8 @@ public class TopologicalSorting {
             ++pointer;
         }
         
+        // Change ids of the vertices in the edge buffer, according to
+        // the new order in the topological sorting.
         MappedByteBuffer edgesTmp = sortedEdges.edgesBuffer;
         edgesTmp.position(0);
         int ind = 0;
