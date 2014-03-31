@@ -1,8 +1,10 @@
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
-import java.nio.*;
 import java.nio.channels.FileChannel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 public class LongestPath {
 	
@@ -162,7 +164,7 @@ public class LongestPath {
 		// Buffer that stores the longest path lengths
 		RandomAccessFile raf = new RandomAccessFile(new File("outputTF.dat"), "rw");
 		FileChannel fc = raf.getChannel();
-	    MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
+	    MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE, 0, FIELD_SIZE * N);
 
 		int B = (int)Math.ceil((double)N / M);
 
@@ -243,7 +245,7 @@ public class LongestPath {
 	}
 
 
-    public static void IOLongestPathTimeForwardExperiment(IOGraph G, int M) throws IOException {
+    public static void IOLongestPathTimeForwardExperiment(IOGraph G, int M) throws Exception {
         int N = G.getSize();
         File outputTF = new File("outputTF.dat");
         RandomAccessFile raf = new RandomAccessFile(outputTF, "rw");
@@ -256,7 +258,7 @@ public class LongestPath {
         //RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
         //FileChannel fcTf = raf.getChannel();
 
-        MappedFileBuffer[] buffers = new MappedFileBuffer[B];
+        SuperArray[] buffers = new SuperArray[B];
         int[] counter = new int[B]; // Counts how many edges per buffer
 
         int maxIndegree = 20;
@@ -264,7 +266,8 @@ public class LongestPath {
         long nBytes = FIELD_SIZE * 3 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
         for (int i = 0; i < B; ++i) {
             //buffers[i] = fcTf.map(FileChannel.MapMode.READ_WRITE, i * nBytes, nBytes);
-            buffers[i] = new MappedFileBuffer(fileTf,0x8000000,true,nBytes);
+            //buffers[i] = new MappedFileBuffer(fileTf,0x8000000,true,nBytes);
+            buffers[i] = new SuperArray(nBytes);
         }
 
         int currentPeriod = -1;
@@ -278,12 +281,11 @@ public class LongestPath {
                 if(currentPeriod%40 == 0){System.out.println(currentPeriod/(float)B + "%");}
                 ++currentPeriod;
                 Q.clear();
-                MappedFileBuffer buf = buffers[currentPeriod];
-                long pos = 0;
+                SuperArray buf = buffers[currentPeriod];
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
-                    int id = buf.getInt(pos); pos +=4;
-                    int t = buf.getInt(pos); pos += 4;
-                    int dist = buf.getInt(pos); pos +=4;
+                    int id = buf.getInt();
+                    int t = buf.getInt();
+                    int dist = buf.getInt();
                     Q.offer(new QueueItem(id, t, dist));
                 }
             }
@@ -309,9 +311,9 @@ public class LongestPath {
                 if (period == currentPeriod) {
                     Q.offer(newItem);
                 } else {
-                    buffers[period].putInt(3 * FIELD_SIZE * counter[period], to);
-                    buffers[period].putInt(3 * FIELD_SIZE * counter[period] + FIELD_SIZE, v.getTime());
-                    buffers[period].putInt(3 * FIELD_SIZE * counter[period] + 2 * FIELD_SIZE, d);
+                    buffers[period].putInt(to);
+                    buffers[period].putInt(v.getTime());
+                    buffers[period].putInt(d);
                     ++counter[period];
                 }
             }

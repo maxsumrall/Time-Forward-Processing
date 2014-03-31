@@ -1,7 +1,8 @@
-import java.io.*;
-import java.nio.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Scanner;
 
 public class Main {
 
@@ -54,7 +55,7 @@ public class Main {
         long startTime = System.currentTimeMillis();
         LongestPath.IOLongestPathTimeForwardExperiment(G,m);
         System.out.println("TFPexperiment: " + String.valueOf(System.currentTimeMillis() - startTime));
-
+        System.out.println(G.getVertices());
         }
         else{System.out.println("missing arg 3: a or b");System.exit(0);}
 
