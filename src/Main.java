@@ -55,7 +55,6 @@ public class Main {
         long startTime = System.currentTimeMillis();
         LongestPath.IOLongestPathTimeForwardExperiment(G,m);
         System.out.println("TFPexperiment: " + String.valueOf(System.currentTimeMillis() - startTime));
-        System.out.println(G.getVertices());
         }
         else{System.out.println("missing arg 3: a or b");System.exit(0);}
 
