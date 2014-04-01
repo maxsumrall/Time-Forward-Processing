@@ -1,7 +1,10 @@
-import java.util.*;
-import java.io.*;
-import java.nio.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by max on 3/13/14.
@@ -99,7 +102,7 @@ public class IOSort {
 
         //Make an intermediary file/buffer to move the merged copies to.
         MappedByteBuffer temp;
-        File tempFile = new File(this.tempFileName + this.N + ".dat");
+        File tempFile = new File(this.tempFileName);
         
         if (tempFile.exists())
         	tempFile.delete();

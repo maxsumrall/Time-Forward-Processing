@@ -1,7 +1,7 @@
 import subprocess
 
 nValues = [3000000,6000000,9000000,12000000,15000000]
-mValues = [40000]
+mValues = [10000]
 
 outputFile = open("results.txt","w")
 

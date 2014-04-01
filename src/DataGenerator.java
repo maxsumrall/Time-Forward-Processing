@@ -6,10 +6,12 @@
  * Therefore the data should be written to some file and this method should return a reference to this file
  *
  */
+
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.*;
-import java.io.*;
-import java.nio.*;
 
 public class DataGenerator {
 
@@ -25,9 +27,9 @@ public class DataGenerator {
      * @param n
      * @param alpha
      */
-    public void GenerateData(int n, double alpha){
+    public void GenerateData(int n, double alpha, String filename){
         //System.out.println("Beginning Data generation...");
-        file = new File("edgeData" + Integer.toString(n) + ".dat");
+        file = new File(filename);
         
         if (file.exists()) {
         	file.delete();

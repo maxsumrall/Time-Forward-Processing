@@ -1,6 +1,6 @@
-
-import java.io.*;
-import java.nio.*;
+import java.io.File;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 /**
@@ -30,12 +30,13 @@ public class SortByDestination {
         buffer.force();
     }
 
-    public void sort(File edgesFile) throws Exception{
+    public void sort(File edgesFile,String fileName) throws Exception{
         this.swap(edgesFile);
-        IOSort originSorter = new IOSort(edgesFile,n,"destSorted");
+        IOSort originSorter = new IOSort(edgesFile,n,"destinSorted");
         originSorter.sortSegments();
         originSorter.mergeSort();
-        this.swap(new File("destSorted" + n + ".dat"));
+        this.swap(new File("destinSorted"));
+        new File("destinSorted").renameTo(new File(fileName + ".DestSorted"));
 
     }
 }

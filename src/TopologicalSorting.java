@@ -1,10 +1,11 @@
 import java.io.File;
-import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Implements both DFS and BFS topological sorting
@@ -18,6 +19,8 @@ public class TopologicalSorting {
      * @param G: Object representation of the graph
      * @return
      */
+    public static boolean fancyData = false;
+
 	public static ArrayList<Vertex> TopologicalSortBFS(Graph G) {
 		int N = G.getSize();
 		Queue<Vertex> Q = new LinkedList<Vertex>();
@@ -60,7 +63,7 @@ public class TopologicalSorting {
 	 * @return Graph with the vertices in topological order, and edges also ordered
 	 * the same as the vertices.
 	 */
-	public static IOGraph IOTopologicalSortBFS(IOVertexBuffer vertices, int N) throws Exception{
+	public static IOGraph IOTopologicalSortBFS(IOVertexBuffer vertices, IOEdgesBuffer edges, int N, String fileName) throws Exception{
     	
 		// Buffer that will contain the indegree for each vertex allocated with N integers
 		File indegreeFile = new File("indegree.tmp");
@@ -70,7 +73,7 @@ public class TopologicalSorting {
     	
     	
     	// Calculate the indegree for each vertex from the destination-sorted edge list
-    	RandomAccessFile destRAFile = new RandomAccessFile(new File("destSorted" + N + ".dat"),"rw");
+    	RandomAccessFile destRAFile = new RandomAccessFile(new File(fileName + ".DestSorted"),"rw");
     	FileChannel destFileChannel = destRAFile.getChannel();
     	MappedByteBuffer destBuffer = destFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * 2 * 3 * N);
     	
@@ -114,7 +117,7 @@ public class TopologicalSorting {
         destRAFile.close();
         
         // Create the graph representation from the origin-sorted edge list
-        RandomAccessFile originRAFile = new RandomAccessFile(new File("originSorted" + N + ".dat"),"rw");
+        RandomAccessFile originRAFile = new RandomAccessFile(new File(fileName+ ".OriginSorted"),"rw");
     	FileChannel originFileChannel = originRAFile.getChannel();
     	// 4 bytes * <origin, destination> * (3N)
     	MappedByteBuffer originBuffer = originFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * 2 * 3 * N);
@@ -123,11 +126,7 @@ public class TopologicalSorting {
         while (originBuffer.hasRemaining())
         	System.out.println(originBuffer.getInt() + ", " + originBuffer.getInt());
         originBuffer.position(0);*/
-    	
-    	
-    	// Create the edges buffer based on the origin-sorted edge list
-    	IOEdgesBuffer edges = new IOEdgesBuffer(N, "edges1.dat");
-    	
+
     	int pointer = 0;
     	prev = -1;
     	// If there are repeated edges, don't store them twice
@@ -171,8 +170,8 @@ public class TopologicalSorting {
         originRAFile.close();
     	
         // Run the actual topological sorting algorithm
-        IOVertexBuffer sortedVertices = new IOVertexBuffer(N, N+"vertices2.dat");
-        IOEdgesBuffer sortedEdges = new IOEdgesBuffer(N, N+"edges2.dat");
+        IOVertexBuffer sortedVertices = new IOVertexBuffer(N, fileName + ".TopoVertices");
+        IOEdgesBuffer sortedEdges = new IOEdgesBuffer(N, fileName + ".TopoEdges");
         
         Queue<Integer> Q = new LinkedList<Integer>();
                 
