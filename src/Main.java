@@ -12,10 +12,12 @@ public class Main {
      * options: source of data: generate new data or use existing data
      *          if generating new data, generate it and sort it and be done
      *          if using existing data, give me next the name, and what to do to it: which alg to use or to run sorting on it
-     *  java Main -n N
-     *  java Main "filename" N topoSort
-     *  java Main "filename" N DP
-     *  java Main "filename" N TFP/TFPExperimental M
+     *
+     *     Examples
+     *  java Main -n N   //create new random data with N vertices. DOES NOT TOPOSORT
+     *  java Main "filename" N topoSort   // execute toposort alg on "fileName" with N vertices
+     *  java Main "filename" N DP         // execute DP alg on "filename" with N vertices
+     *  java Main "filename" N TFP/TFP_Exp M
      *                                             ^ NOTICE THE M
      *                                            ^^^
      *                                          ~^^^^^ ~
@@ -73,6 +75,12 @@ public class Main {
                     System.out.println("DP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
                 }
+                if(args[2].equals("DPUnsafe")){
+                    long startTime = System.currentTimeMillis();
+                    LongestPath.IOLongestPathDPUnsafe(G);
+                    System.out.println("DPUnsafe: " + String.valueOf(System.currentTimeMillis() - startTime));
+
+                }
                 /**
                  * Do TFP algorithm!
                  */
@@ -97,7 +105,7 @@ public class Main {
                 else if (args[2].equals("WaterFlow")){
                     long startTime = System.currentTimeMillis();
                     LongestPath.waterflowTFPIO(G,M);
-                    System.out.println("TFPexperiment: " + String.valueOf(System.currentTimeMillis() - startTime));
+                    System.out.println("Waterflow: " + String.valueOf(System.currentTimeMillis() - startTime));
 
                 }
             }

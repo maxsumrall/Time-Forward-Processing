@@ -47,7 +47,7 @@ public class DataGenerator {
         }
         int span = 0;
         int origin = 0;
-        for(int i=0; i < 3*n; i++){
+        for(int i=1; i <= 3*n; i++){
             span = (int) Math.ceil((1 - Math.pow(Math.random(), alpha)) * (n - 1));
             origin = (int) Math.floor(Math.random() * (n - span));
             this.newEdge(origin,origin+span);
