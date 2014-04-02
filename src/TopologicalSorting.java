@@ -73,9 +73,9 @@ public class TopologicalSorting {
     	
     	
     	// Calculate the indegree for each vertex from the destination-sorted edge list
-    	RandomAccessFile destRAFile = new RandomAccessFile(new File(fileName + ".DestSorted"),"rw");
+    	RandomAccessFile destRAFile = new RandomAccessFile(new File(fileName + ".DestSorted"),"r");
     	FileChannel destFileChannel = destRAFile.getChannel();
-    	MappedByteBuffer destBuffer = destFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * 2 * 3 * N);
+    	MappedByteBuffer destBuffer = destFileChannel.map(FileChannel.MapMode.READ_ONLY, 0, destFileChannel.size());
     	
     	/*destBuffer.position(0);
         while (destBuffer.hasRemaining())
@@ -91,9 +91,11 @@ public class TopologicalSorting {
     	// If there are repeated edges, don't count them twice
     	HashSet<Integer> seen = new HashSet<Integer>();
     	int maxIndegree = 0; // Just to see what the max indegree is
+    	destBuffer.position(0);
         while (destBuffer.hasRemaining()) { //for each vertex
         	int u = destBuffer.getInt();
         	int v = destBuffer.getInt();
+        	if (u == 0 && v == 0) break;
         	
         	if (v != prev)
         		seen.clear();
@@ -117,10 +119,10 @@ public class TopologicalSorting {
         destRAFile.close();
         
         // Create the graph representation from the origin-sorted edge list
-        RandomAccessFile originRAFile = new RandomAccessFile(new File(fileName+ ".OriginSorted"),"rw");
+        RandomAccessFile originRAFile = new RandomAccessFile(new File(fileName+ ".OriginSorted"),"r");
     	FileChannel originFileChannel = originRAFile.getChannel();
     	// 4 bytes * <origin, destination> * (3N)
-    	MappedByteBuffer originBuffer = originFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 4 * 2 * 3 * N);
+    	MappedByteBuffer originBuffer = originFileChannel.map(FileChannel.MapMode.READ_ONLY, 0, originFileChannel.size());
     	
     	/*originBuffer.position(0);
         while (originBuffer.hasRemaining())
@@ -131,9 +133,11 @@ public class TopologicalSorting {
     	prev = -1;
     	// If there are repeated edges, don't store them twice
     	seen = new HashSet<Integer>();
+    	originBuffer.position(0);
     	while (originBuffer.hasRemaining()) {
     		int u = originBuffer.getInt();
         	int v = originBuffer.getInt();
+        	if (u == 0 && v == 0) break;
         	
         	// If this is the first edge of current vertex...
         	if (prev != u) {
@@ -159,6 +163,7 @@ public class TopologicalSorting {
     	}
     	// If the last vertices don't have outgoing edges, add NULLs to edge buffer
     	for (int j = prev; j < N; ++j) {
+    		//System.out.println("pointer = " + pointer);
     		edges.addEdge(-1);
     		++pointer;
     	}

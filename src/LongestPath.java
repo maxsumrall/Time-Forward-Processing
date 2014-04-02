@@ -194,7 +194,6 @@ public class LongestPath {
 
             // If this vertex if the first of a new period...
             if (u.getTime() % M == 0) {
-                System.out.println(currentPeriod/B + "%");
                 ++currentPeriod;
                 Q.clear();
                 // Load all contents of file into the queue
