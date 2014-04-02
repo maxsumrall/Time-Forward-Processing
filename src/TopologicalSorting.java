@@ -15,7 +15,7 @@ public class TopologicalSorting {
     /**
      * Non I/O efficient implementation of topological sorting, used only for
      * comparisons with the I/O efficient
-     * 
+     *
      * @param G: Object representation of the graph
      * @return
      */
@@ -83,7 +83,7 @@ public class TopologicalSorting {
         destBuffer.position(0);*/
 
         /* this loop calculates for each vertex how many edges arrive at it*/
-    	indegreeBuffer.position(0);
+        indegreeBuffer.position(0);
         for (int i = 0; i < N; ++i)
         	indegreeBuffer.putInt(0);
         
@@ -117,7 +117,7 @@ public class TopologicalSorting {
 
         destFileChannel.close();
         destRAFile.close();
-        
+
         // Create the graph representation from the origin-sorted edge list
         RandomAccessFile originRAFile = new RandomAccessFile(new File(fileName+ ".OriginSorted"),"r");
     	FileChannel originFileChannel = originRAFile.getChannel();

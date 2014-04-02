@@ -15,9 +15,10 @@ minWeight = 10 #some high number i picked for init
 maxWeight = 0
 j = 0.1
 weights = []
-while j <= 5.0:
+MAXWEIGHT = 3.0
+while j <= MAXWEIGHT:
   weights.append(j)
-  j += 0.1
+  j =  round(j + 0.05,3)
 print weights
 #weights = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
 nodes = {} #dict to store nodes with the x,y coords
@@ -45,7 +46,7 @@ ew = []
 
 for i in weights:
   #ew.append([(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] == i])
-  ew.append([(u,v) for (u,v,d) in G.edges(data=True) if round(((((float(d['weight']) - minWeight) * (5.0 - 0.1)) / (maxWeight - minWeight)) + 0.1),1) == i])
+  ew.append([(u,v) for (u,v,d) in G.edges(data=True) if round(((((float(d['weight']) - minWeight) * (MAXWEIGHT - 0.1)) / (maxWeight - minWeight)) + 0.1),1) == i])
 
 #for i in range(len(G.edges())):
 #  ew[G.edges[i]]

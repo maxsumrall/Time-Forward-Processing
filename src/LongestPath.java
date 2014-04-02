@@ -11,7 +11,7 @@ public class LongestPath {
 	
 	static final int FIELD_SIZE = 4; // 4 bytes
 
-	static class QueueItem implements Comparable<QueueItem> {
+	static final class QueueItem implements Comparable<QueueItem> {
 		int id, time, distance;
 		public QueueItem(int id, int time, int distance) {
 			this.id = id;
@@ -278,9 +278,10 @@ public class LongestPath {
             IOVertex u = G.getVertices().getVertexAt(i);
 
             if (u.getTime() % M == 0) {
-                if(currentPeriod%40 == 0){System.out.println(currentPeriod/(float)B + "%");}
+                //if(currentPeriod%40 == 0){System.out.println(currentPeriod/(float)B + "%");}
                 ++currentPeriod;
                 Q.clear();
+                if (currentPeriod > 1){buffers[currentPeriod-1].discard();}
                 SuperArray buf = buffers[currentPeriod];
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
                     int id = buf.getInt();
@@ -339,8 +340,8 @@ public class LongestPath {
         FileChannel fcEdges = rafEdges.getChannel();
         MappedByteBuffer distWater = fcEdges.map(FileChannel.MapMode.READ_WRITE, 0, 3 * FIELD_SIZE * G.getEdges().size);
 
-        int B = (int)Math.ceil((double)N / M);
-
+        int B = (int)Math.ceil((double)N / M) + 1;
+        System.out.println(B);
         // Temporary random access file for the files corresponding to the periods.
         // The temporary files are in consecutive blocks
         File fileTf = new File("tf.tmp");
@@ -366,8 +367,8 @@ public class LongestPath {
 
             // If this vertex if the first of a new period...
             if (u.getTime() % M == 0) {
-                System.out.println(currentPeriod/B + "%");
                 ++currentPeriod;
+                System.out.println(u.getTime() + " " + currentPeriod);
                 Q.clear();
                 // Load all contents of file into the queue
                 MappedByteBuffer buf = buffers[currentPeriod];
