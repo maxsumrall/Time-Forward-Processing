@@ -10,7 +10,7 @@ class SuperArray {
     private long tail;
     Unsafe unsafe;
     public SuperArray(long size) throws Exception {
-        Field f = Unsafe.class.getDeclaredField("theUnsafe");
+        Field f =  Unsafe.class.getDeclaredField("theUnsafe");
         f.setAccessible(true);
         unsafe = (Unsafe) f.get(null);
         this.size = size;
@@ -32,7 +32,8 @@ class SuperArray {
     }
     public int getInt(long idx){ return unsafe.getInt(address + idx * INT);}
     public int getInt(){ return unsafe.getInt(address + --tail * INT);}
-    public void finalize(){unsafe.freeMemory(address);}
+    public void finalize(){discard();}
+    public void discard(){unsafe.freeMemory(address);}
     public long size() {
         return size;
     }
