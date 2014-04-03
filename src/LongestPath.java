@@ -83,10 +83,12 @@ public class LongestPath {
             IOVertex u = G.getVertices().getVertexAt(i);
             for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
 
-                int distU = longPath.getInt(u.getId());
+                /*int distU = longPath.getInt(u.getId());
                 int distV = longPath.getInt(to);
                 int newDist = Math.max(distV, distU + 1);
                 longPath.putInt(to, newDist);
+                */
+                longPath.putInt(to, Math.max( longPath.getInt(u.getId()) , (longPath.getInt(to) + 1) ));
             }
         }
     }
@@ -271,6 +273,12 @@ public class LongestPath {
         }
 
         int currentPeriod = -1;
+        /* Avoid many object creations*/
+        int id;
+        int t;
+        int dist;
+        int period;
+        int d;
 
         PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
         for (int i = 0; i < N; ++i) {
@@ -284,9 +292,9 @@ public class LongestPath {
                 if (currentPeriod > 1){buffers[currentPeriod-1].discard();}
                 SuperArray buf = buffers[currentPeriod];
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
-                    int id = buf.getInt();
-                    int t = buf.getInt();
-                    int dist = buf.getInt();
+                    id = buf.getInt();
+                    t = buf.getInt();
+                    dist = buf.getInt();
                     Q.offer(new QueueItem(id, t, dist));
                 }
             }
@@ -306,8 +314,8 @@ public class LongestPath {
             // Put information of neighbors in data structure
             for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
                 IOVertex v = G.getVertices().getVertexAt(to);
-                int period = v.getTime() / M;
-                int d = distBuffer.getInt(FIELD_SIZE * u.getId());
+                period = v.getTime() / M;
+                d = distBuffer.getInt(FIELD_SIZE * u.getId());
                 QueueItem newItem = new QueueItem(to, v.getTime(), d);
                 if (period == currentPeriod) {
                     Q.offer(newItem);
@@ -382,7 +390,7 @@ public class LongestPath {
             }
 
             // Process current vertex
-            int maxDistance = 1000000;
+            int maxDistance = 1000;
             while (!Q.isEmpty()) {
                 QueueItem top = Q.peek();
                 if (top.time != u.getTime())

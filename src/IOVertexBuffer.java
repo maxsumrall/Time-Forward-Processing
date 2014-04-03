@@ -5,15 +5,22 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 public class IOVertexBuffer {
-    File vertFile;
-	RandomAccessFile rafVertices;
-	FileChannel verticesFileChannel;
-	MappedByteBuffer verticesBuffer;
-	int size;
-	
+    final File vertFile;
+	final RandomAccessFile rafVertices;
+	final FileChannel verticesFileChannel;
+	final MappedByteBuffer verticesBuffer;
+	final int size;
 	static final int FIELD_SIZE = 4;
 	static final int NUM_FIELDS = 5;
-	
+
+    int curpos;
+    int pos;
+    int time;
+    int vid;
+    int x;
+    int y;
+    int edges;
+
 	public IOVertexBuffer(int size, String filename) throws IOException {
 		this.size = size;
         vertFile = new File(filename);
@@ -22,7 +29,7 @@ public class IOVertexBuffer {
 		verticesBuffer = verticesFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, NUM_FIELDS * FIELD_SIZE * size); // <id, time, x, y, edges>	
 	}
 	
-	public void addVertex(IOVertex v) {
+	public final void addVertex(IOVertex v) {
 		verticesBuffer.putInt(v.getId());
 		verticesBuffer.putInt(v.getTime());
 		verticesBuffer.putInt(v.getX());
@@ -30,21 +37,19 @@ public class IOVertexBuffer {
 		verticesBuffer.putInt(v.getEdges());
 	}
 	
-	public IOVertex getVertexAt(int id) {
-		int curpos = verticesBuffer.position();
-		int pos = NUM_FIELDS * FIELD_SIZE * id;
+	public final IOVertex getVertexAt(int id) {
+		this.curpos = verticesBuffer.position();
+		this.pos = NUM_FIELDS * FIELD_SIZE * id;
 		
 		verticesBuffer.position(pos);
-		int vid = verticesBuffer.getInt();
-		int time = verticesBuffer.getInt();
-		int x = verticesBuffer.getInt();
-		int y = verticesBuffer.getInt();
-		int edges = verticesBuffer.getInt();
-		
-		IOVertex v = new IOVertex(vid, time, x, y, edges);
+		this.vid = verticesBuffer.getInt();
+		this.time = verticesBuffer.getInt();
+		this.x = verticesBuffer.getInt();
+		this.y = verticesBuffer.getInt();
+		this.edges = verticesBuffer.getInt();
 		verticesBuffer.position(curpos);
 		
-		return v;
+		return new IOVertex(vid, time, x, y, edges);
 	}
 	
 	public void close() throws IOException {
@@ -56,24 +61,24 @@ public class IOVertexBuffer {
         this.vertFile.delete();
     }
 	
-	public int getSize() {
+	public final int getSize() {
 		return this.size;
 	}
 	
-	public void setEdgesAt(int id, int edges) {
-		int curpos = verticesBuffer.position();
-		int pos = NUM_FIELDS * FIELD_SIZE * id + FIELD_SIZE * (NUM_FIELDS - 1);
+	public final void setEdgesAt(int id, int edgesLocal) {
+		this.curpos = verticesBuffer.position();
+		this.pos = NUM_FIELDS * FIELD_SIZE * id + FIELD_SIZE * (NUM_FIELDS - 1);
 		
-		verticesBuffer.putInt(pos, edges);
+		verticesBuffer.putInt(pos, edgesLocal);
 		
 		verticesBuffer.position(curpos);
 	}
 	
-	public void setTimeAt(int id, int time) {
-		int curpos = verticesBuffer.position();
-		int pos = NUM_FIELDS * FIELD_SIZE * id + FIELD_SIZE;
+	public final void setTimeAt(int id, int timeLocal) {
+		this.curpos = verticesBuffer.position();
+		this.pos = NUM_FIELDS * FIELD_SIZE * id + FIELD_SIZE;
 		
-		verticesBuffer.putInt(pos, time);
+		verticesBuffer.putInt(pos, timeLocal);
 		
 		verticesBuffer.position(curpos);
 	}

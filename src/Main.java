@@ -59,9 +59,9 @@ public class Main {
             else if(args[2].equals("topoSortWithXY")){
                 IOEdgesBuffer edges = new IOEdgesBuffer(n, readFileName+".TempEdges");
                 IOVertexBuffer vertices = new IOVertexBuffer(n, readFileName+".TempVertices");
-                File verticesFile = new File("test25regular-points_min1"); // CHECK FILE NAMES!!!!!
+                File verticesFile = new File("test3000regular-points_min1"); // CHECK FILE NAMES!!!!!
 
-                RandomAccessFile raf = new RandomAccessFile(verticesFile,"r");
+                RandomAccessFile raf = new RandomAccessFile(verticesFile,"rw");
                 FileChannel verticesFileChannel = raf.getChannel();
                 MappedByteBuffer verticesBuffer = verticesFileChannel.map(FileChannel.MapMode.READ_ONLY, 0, 4 * 3 * n);
 
