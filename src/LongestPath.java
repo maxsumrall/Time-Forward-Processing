@@ -424,8 +424,8 @@ public class LongestPath {
 
         distWater.position(0);
         while(distWater.hasRemaining()){
-            String outline = (distWater.getInt()+1) + " " + (distWater.getInt()+1) + " " + distWater.getInt() + "\n";
-            if(!outline.equals("1 1 0\n")){fw.write(outline);}
+            String outline = (distWater.getInt()) + " " + (distWater.getInt()) + " " + distWater.getInt() + "\n";
+            if(!outline.equals("0 0 0\n")){fw.write(outline);}
         }
         fw.close();
 

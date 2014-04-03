@@ -48,35 +48,41 @@ public class Main {
             if(args[2].equals("topoSort")){
                 IOEdgesBuffer edges = new IOEdgesBuffer(n, readFileName+".TempEdges");
                 IOVertexBuffer vertices = new IOVertexBuffer(n, readFileName+".TempVertices");
-                if(args[2].equals("WaterFlow")){
-                	File verticesFile = new File(readFileName + "regular-points.bin"); // CHECK FILE NAMES!!!!!
-                	
-                	RandomAccessFile raf = new RandomAccessFile(verticesFile,"r");
-                	FileChannel verticesFileChannel = raf.getChannel();
-                	MappedByteBuffer verticesBuffer = verticesFileChannel.map(FileChannel.MapMode.READ_ONLY, 0, 4 * 3 * n);
-                	
-                	for (int i = 0; i < n; ++i) {
-                		int id = verticesBuffer.getInt();
-                		int time = id;
-                		int x = verticesBuffer.getInt();
-                		int y = verticesBuffer.getInt();
-	                    vertices.addVertex(new IOVertex(id, time, x, y, -1));
-                	}
-                	
-                	verticesFileChannel.close();
-                	raf.close();
-                
-                }
-                else{
 	                for (int i = 0; i < n; ++i)
 	                    vertices.addVertex(new IOVertex(i, i, 10 * i, 10 * i, -1));
-                }
                 long startTime = System.currentTimeMillis();
                 IOGraph G = TopologicalSorting.IOTopologicalSortBFS(vertices,edges, n, readFileName);
                 System.out.println("Topological Sorting RunTime: " + String.valueOf(System.currentTimeMillis() - startTime) + " m/s");
                 edges.delete();
                 vertices.delete();
             }
+            else if(args[2].equals("topoSortWithXY")){
+                IOEdgesBuffer edges = new IOEdgesBuffer(n, readFileName+".TempEdges");
+                IOVertexBuffer vertices = new IOVertexBuffer(n, readFileName+".TempVertices");
+                File verticesFile = new File("test25regular-points_min1"); // CHECK FILE NAMES!!!!!
+
+                RandomAccessFile raf = new RandomAccessFile(verticesFile,"r");
+                FileChannel verticesFileChannel = raf.getChannel();
+                MappedByteBuffer verticesBuffer = verticesFileChannel.map(FileChannel.MapMode.READ_ONLY, 0, 4 * 3 * n);
+
+                for (int i = 0; i < n; ++i) {
+                    int id = verticesBuffer.getInt();
+                    int time = id;
+                    int x = verticesBuffer.getInt();
+                    int y = verticesBuffer.getInt();
+                    vertices.addVertex(new IOVertex(id, time, x, y, -1));
+                }
+
+                verticesFileChannel.close();
+                raf.close();
+
+                long startTime = System.currentTimeMillis();
+                IOGraph G = TopologicalSorting.IOTopologicalSortBFS(vertices,edges, n, readFileName);
+                System.out.println("Topological Sorting RunTime: " + String.valueOf(System.currentTimeMillis() - startTime) + " m/s");
+                edges.delete();
+                vertices.delete();
+            }
+
 
             /**
              * Assume topological sorting has been done!

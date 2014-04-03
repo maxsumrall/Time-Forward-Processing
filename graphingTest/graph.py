@@ -15,7 +15,7 @@ minWeight = 10 #some high number i picked for init
 maxWeight = 0
 j = 0.1
 weights = []
-MAXWEIGHT = 3.0
+MAXWEIGHT = 10.0
 while j <= MAXWEIGHT:
   weights.append(j)
   j =  round(j + 0.05,3)
@@ -55,6 +55,7 @@ for i in weights:
 
 for i in zip(ew,weights):
   nx.draw_networkx_edges(G,pos=nx.spring_layout(G,iterations = 0,weight=1,pos=nodes),edgelist=i[0],width=i[1])
+  #nx.draw_networkx_nodes(G,pos=nx.spring_layout(G,iterations = 0,weight=1,pos=nodes),edgelist=i[0],width=i[1],node_size=1)
 
 # labels
 #nx.draw_networkx_labels(G,pos=nx.spring_layout(G,iterations = 0,k=500,weight=1,pos=nodes),font_size=10,font_family='sans-serif')
