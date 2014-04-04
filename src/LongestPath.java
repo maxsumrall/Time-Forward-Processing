@@ -82,8 +82,15 @@ public class LongestPath {
         for (int i = 0; i < N; ++i) {
             IOVertex u = G.getVertices().getVertexAt(i);
             for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
-                longPath.putInt(to, Math.max(longPath.getInt(u.getId()) , (longPath.getInt(to) + 1) ));
+                longPath.putInt(to, Math.max(longPath.getInt(u.getId()) + 1, (longPath.getInt(to)) ));
             }
+        }
+        File outfile = new File("DPUnsafeOutput.dat");
+        RandomAccessFile raf = new RandomAccessFile(outfile,"rw");
+        FileChannel fc = raf.getChannel();
+        MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_WRITE,0,N*4);
+        for (int i = 0; i < N; i++){
+            mbb.putInt(longPath.getInt(i));
         }
     }
 	/*
