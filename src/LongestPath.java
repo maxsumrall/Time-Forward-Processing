@@ -82,13 +82,7 @@ public class LongestPath {
         for (int i = 0; i < N; ++i) {
             IOVertex u = G.getVertices().getVertexAt(i);
             for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
-
-                /*int distU = longPath.getInt(u.getId());
-                int distV = longPath.getInt(to);
-                int newDist = Math.max(distV, distU + 1);
-                longPath.putInt(to, newDist);
-                */
-                longPath.putInt(to, Math.max( longPath.getInt(u.getId()) , (longPath.getInt(to) + 1) ));
+                longPath.putInt(to, Math.max(longPath.getInt(u.getId()) , (longPath.getInt(to) + 1) ));
             }
         }
     }
@@ -263,7 +257,7 @@ public class LongestPath {
         SuperArray[] buffers = new SuperArray[B];
         int[] counter = new int[B]; // Counts how many edges per buffer
 
-        int maxIndegree = 20;
+        int maxIndegree = 10;
 
         long nBytes = FIELD_SIZE * 3 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
         for (int i = 0; i < B; ++i) {
@@ -279,6 +273,7 @@ public class LongestPath {
         int dist;
         int period;
         int d;
+        int maxDistance = 0;
 
         PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
         for (int i = 0; i < N; ++i) {
@@ -289,7 +284,7 @@ public class LongestPath {
                 //if(currentPeriod%40 == 0){System.out.println(currentPeriod/(float)B + "%");}
                 ++currentPeriod;
                 Q.clear();
-                if (currentPeriod > 1){buffers[currentPeriod-1].discard();}
+                if (currentPeriod >= 1){buffers[currentPeriod-1].discard();}
                 SuperArray buf = buffers[currentPeriod];
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
                     id = buf.getInt();
@@ -300,7 +295,7 @@ public class LongestPath {
             }
 
             // Process current vertex
-            int maxDistance = 0;
+            maxDistance = 0;
             while (!Q.isEmpty()) {
                 QueueItem top = Q.peek();
                 if (top.time != u.getTime())

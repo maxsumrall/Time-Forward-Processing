@@ -33,6 +33,8 @@ class SuperArray {
     public final int getInt(){ return unsafe.getInt(address + --tail * INT);}
     public final void finalize(){discard();}
     public final void discard(){unsafe.freeMemory(address);}
+    public final long position(){return tail;}
+    public final void position(long newTail){this.tail = newTail;}
     public final long size() {
         return size;
     }

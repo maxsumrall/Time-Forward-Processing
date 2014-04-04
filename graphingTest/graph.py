@@ -13,12 +13,12 @@ nodesFile = open(str(sys.argv[1]),"r")
 edgesFile = open(str(sys.argv[2]),"r")
 minWeight = 10 #some high number i picked for init
 maxWeight = 0
-j = 0.1
+j = 0.3
 weights = []
-MAXWEIGHT = 10.0
+MAXWEIGHT = 5.0
 while j <= MAXWEIGHT:
   weights.append(j)
-  j =  round(j + 0.05,3)
+  j =  round(j + 0.05,7)
 print weights
 #weights = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
 nodes = {} #dict to store nodes with the x,y coords
