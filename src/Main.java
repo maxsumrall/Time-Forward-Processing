@@ -129,6 +129,16 @@ public class Main {
 
                 }
                 /**
+                 * Not using vertices
+                 */
+                else if (args[2].equals("TFP_NV")){
+                    M = Integer.parseInt(args[3]);
+                    long startTime = System.currentTimeMillis();
+                    LongestPath.IOLongestPathTimeForwardNoVertices(G,M);
+                    System.out.println("TFPNoV: " + String.valueOf(System.currentTimeMillis() - startTime));
+
+                }
+                /**
                  * Do Water Flow Calculation!
                  */
                 else if (args[2].equals("WaterFlow")){
