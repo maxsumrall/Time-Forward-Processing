@@ -176,7 +176,7 @@ public class LongestPath {
 		MappedByteBuffer[] buffers = new MappedByteBuffer[B];
 		int[] counter = new int[B]; // Counts how many edges per buffer
 
-		int maxIndegree = 10;
+		int maxIndegree = 20;
 
 		int nBytes = FIELD_SIZE * 2 * maxIndegree * M; // 4 bytes * <id, dist> * max_indegree * M
 		for (int i = 0; i < B; ++i) {
@@ -185,10 +185,9 @@ public class LongestPath {
 		}
 
 		int currentPeriod = -1;
-
+        int e = 0;
         PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
         for (int i = 0; i < N; ++i) {
-            // If this vertex if the first of a new period...
             if (i % M == 0) {
                 ++currentPeriod;
                 Q.clear();
@@ -211,13 +210,13 @@ public class LongestPath {
                 Q.poll();
                 maxDistance = Math.max(maxDistance, top.distance + 1);
             }
-            System.out.println(maxDistance);
-            distBuffer.putInt(maxDistance);
+            //System.out.println(maxDistance);
+            distBuffer.putInt(FIELD_SIZE * i, maxDistance);
 
             // Put information of neighbors in data structure
-            int e = 0;
             for (int to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
                 int period = to / M;
+                System.out.println(period);
                 QueueItem newItem = new QueueItem(to, maxDistance);
                 if (period == currentPeriod) {
                     Q.offer(newItem);
@@ -363,6 +362,7 @@ public class LongestPath {
         int period;
         int d;
         int maxDistance = 0;
+        int counting =0;
 
         PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
         for (int i = 0; i < N; ++i) {
@@ -395,7 +395,8 @@ public class LongestPath {
             distBuffer.putInt(FIELD_SIZE * i, maxDistance);
 
             // Put information of neighbors in data structure
-            for (int e = i, to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
+            for (int e = counting, to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
+                counting++;
                 IOVertex v = G.getVertices().getVertexAt(to);
                 period = v.getTime() / M;
                 d = distBuffer.getInt(FIELD_SIZE * i);
@@ -409,6 +410,7 @@ public class LongestPath {
                     ++counter[period];
                 }
             }
+            counting++;
         }
         fc.close();
         raf.close();
