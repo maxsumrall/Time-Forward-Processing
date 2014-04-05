@@ -273,6 +273,7 @@ public class LongestPath {
         int period;
         int maxDistance = 0;
         int to;
+        QueueItem newItem;
         SuperArray buf;
         QueueItem top;
 
@@ -306,12 +307,12 @@ public class LongestPath {
             // Put information of neighbors in data structure
             for (to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
                 period = to / M;
-                QueueItem newItem = new QueueItem(to, maxDistance);
                 if (period == currentPeriod) {
+                    newItem = new QueueItem(to, maxDistance);
                     Q.offer(newItem);
                 } else {
-                    buffers[period].putInt(2 * FIELD_SIZE * counter[period], to);
-                    buffers[period].putInt(2 * FIELD_SIZE * counter[period] + FIELD_SIZE, maxDistance);
+                    buffers[period].putInt(2 * counter[period], to);
+                    buffers[period].putInt(2 * counter[period] + 1, maxDistance);
                     ++counter[period];
                 }
             }
