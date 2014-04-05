@@ -310,8 +310,8 @@ public class LongestPath {
                 if (period == currentPeriod) {
                     Q.offer(newItem);
                 } else {
-                    buffers[period].putInt(2 * FIELD_SIZE * counter[period], to);
-                    buffers[period].putInt(2 * FIELD_SIZE * counter[period] + FIELD_SIZE, maxDistance);
+                    buffers[period].putInt(2 * counter[period], to);
+                    buffers[period].putInt(2 * counter[period] + 1, maxDistance);
                     ++counter[period];
                 }
             }
