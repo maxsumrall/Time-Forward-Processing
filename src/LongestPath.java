@@ -48,7 +48,7 @@ public class LongestPath {
 	 */
     public static void IOLongestPathDP(IOGraph G) throws IOException {
 		int N = G.getSize();
-		RandomAccessFile raf = new RandomAccessFile(new File("outputDP.dat"), "rw");
+		RandomAccessFile raf = new RandomAccessFile(new File( N + "outputDP.dat"), "rw");
 		FileChannel fc = raf.getChannel();
 	    MappedByteBuffer buffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
 	    
@@ -86,7 +86,7 @@ public class LongestPath {
                 longPath.putInt(to, Math.max(longPath.getInt(i) + 1, (longPath.getInt(to)) ));
             ++e;
         }
-        File outfile = new File("DPUnsafeOutput.dat");
+        File outfile = new File(N+"DPUnsafeOutput.dat");
         RandomAccessFile raf = new RandomAccessFile(outfile,"rw");
         FileChannel fc = raf.getChannel();
         MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_WRITE,0,N*4);
@@ -167,7 +167,7 @@ public class LongestPath {
 		int N = G.getSize();
 
 		// Buffer that stores the longest path lengths
-		RandomAccessFile raf = new RandomAccessFile(new File("outputTF.dat"), "rw");
+		RandomAccessFile raf = new RandomAccessFile(new File(N+"."+M+"."+"outputTF.dat"), "rw");
 		FileChannel fc = raf.getChannel();
 	    MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE, 0, FIELD_SIZE * N);
 		int B = (int)Math.ceil((double)N / M);
@@ -245,7 +245,7 @@ public class LongestPath {
 
     public static void IOLongestPathTimeForward(IOGraph G, int M) throws Exception {
         int N = G.getSize();
-        File outputTF = new File("outputTF.dat");
+        File outputTF = new File(N+"."+M+"."+"outputTF.dat");
         RandomAccessFile raf = new RandomAccessFile(outputTF, "rw");
         FileChannel fc = raf.getChannel();
         MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
