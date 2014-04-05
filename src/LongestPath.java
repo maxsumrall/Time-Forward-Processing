@@ -216,7 +216,7 @@ public class LongestPath {
                 Q.poll();
                 maxDistance = Math.max(maxDistance, top.distance + 1);
             }
-            System.out.println(i + ": " + maxDistance);
+            //System.out.println(i + ": " + maxDistance);
             distBuffer.putInt(FIELD_SIZE * i, maxDistance);
 
             // Put information of neighbors in data structure
