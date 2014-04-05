@@ -287,10 +287,9 @@ public class LongestPath {
         PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
         for (int i = 0; i < N; ++i) {
             if (i % M == 0) {
-                //if(currentPeriod%40 == 0){System.out.println(currentPeriod/(float)B + "%");}
                 ++currentPeriod;
-                Q.clear();
                 assert Q.isEmpty();
+                Q.clear();
                 if (currentPeriod >= 1){buffers[currentPeriod-1].discard();}
                 buf = buffers[currentPeriod];
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
