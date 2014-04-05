@@ -408,7 +408,7 @@ public class LongestPath {
                 if (period == currentPeriod) {
                     Q.offer(newItem);
                 } else {
-                    buffers[period].putInt(3 * FIELD_SIZE * counter[period], to);
+                    buffers[period].putInt(3 * FIELD_SIZE * counter[period], i);
                     buffers[period].putInt(3 * FIELD_SIZE * counter[period] + FIELD_SIZE, to);
                     buffers[period].putInt(3 * FIELD_SIZE * counter[period] + 2 * FIELD_SIZE, maxDistance/magic);
                     ++counter[period];
