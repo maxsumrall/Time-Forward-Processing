@@ -75,10 +75,9 @@ public class Utility {
         RandomAccessFile in = new RandomAccessFile(filenamepart,"rw");
         FileChannel fc = in.getChannel();
         MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_WRITE,0,fc.size());
-        int i = 0;
-        while(mbb.hasRemaining()){
-
-            System.out.println(++i + ": " + mbb.getInt() + ", " + mbb.getInt());
+        int i = mbb.remaining();
+        for(int j = 0; j < i; j+=4){
+            System.out.println(j/4 + ": " + mbb.getInt());
         }
         System.out.println("-----------");
     }

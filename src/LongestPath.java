@@ -170,14 +170,13 @@ public class LongestPath {
 		RandomAccessFile raf = new RandomAccessFile(new File("outputTF.dat"), "rw");
 		FileChannel fc = raf.getChannel();
 	    MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE, 0, FIELD_SIZE * N);
-
 		int B = (int)Math.ceil((double)N / M);
 
 		// Temporary random access file for the files corresponding to the periods.
 		// The temporary files are in consecutive blocks
 		File fileTf = new File("tf.tmp");
 		RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
-		FileChannel fcTf = raf.getChannel();
+		FileChannel fcTf = rafTf.getChannel();
 
 		MappedByteBuffer[] buffers = new MappedByteBuffer[B];
 		int[] counter = new int[B]; // Counts how many edges per buffer
