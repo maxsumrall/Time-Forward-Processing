@@ -30,17 +30,17 @@ public class LongestPath {
 	 */
 	public static int[] LongestPathDP(Graph G) {
 		ArrayList<Vertex> topsort = TopologicalSorting.TopologicalSortBFS(G);
-		
+
 		int[] dist = new int[G.getSize()];
 		for (Vertex v : topsort)
 			for (Edge e : v.getEdges()) {
 				Vertex w = e.getTo();
 				dist[w.getId()] = Math.max(dist[w.getId()], dist[v.getId()] + 1);
 			}
-		
+
 		return dist;
 	}
-	
+
 	/**
 	 * The graph is assumed to be in topological order.
 	 * 
@@ -60,7 +60,7 @@ public class LongestPath {
         int e = 0;
 		for (int i = 0; i < N; ++i) {
 			int distU = buffer.getInt(FIELD_SIZE * i);
-			System.out.println(i + ": " + distU);
+			//System.out.println(i + ": " + distU);
 			for (int to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
 				int distV = buffer.getInt(FIELD_SIZE * to);
 				int newDist = Math.max(distV, distU + 1);
@@ -102,7 +102,7 @@ public class LongestPath {
 	 *
 	 * @param G: object representation of the graph.
 	 * M: number of vertices per period.
-	 */
+
 	public static int[] LongestPathTimeForward(Graph G, int M) {
 		ArrayList<Vertex> topsort = TopologicalSorting.TopologicalSortBFS(G);
 		int N = G.getSize();
@@ -155,14 +155,14 @@ public class LongestPath {
 
 		return distance;
 	}
-
+    */
 	/**
 	 * I/O efficient implementation of the time forward processing algorithm.
 	 * It uses a MappedByteBuffer on top of a random access file.
 	 *
 	 * @param G: topologically sorted graph represented with buffers.
 	 * M: number of vertices per period.
-	 */
+
 	public static void IOLongestPathTimeForward(IOGraph G, int M) throws IOException {
 		int N = G.getSize();
 
@@ -242,11 +242,11 @@ public class LongestPath {
 		if (fileTf.exists())
 			fileTf.delete();
 	}
+     */
 
-
-    public static void IOLongestPathTimeForwardExperiment(IOGraph G, int M) throws Exception {
+    public static void IOLongestPathTimeForward(IOGraph G, int M) throws Exception {
         int N = G.getSize();
-        File outputTF = new File("outputTFUnsafe.dat");
+        File outputTF = new File("outputTF.dat");
         RandomAccessFile raf = new RandomAccessFile(outputTF, "rw");
         FileChannel fc = raf.getChannel();
         MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
@@ -295,7 +295,6 @@ public class LongestPath {
                 buf = buffers[currentPeriod];
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
                     id = buf.getInt();
-                    t = buf.getInt();
                     dist = buf.getInt();
                     Q.offer(new QueueItem(id, dist));
                 }
@@ -335,98 +334,6 @@ public class LongestPath {
         if (fileTf.exists())
             fileTf.delete();
     }
-
-
-    public static void IOLongestPathTimeForwardNoVertices(IOGraph G, int M) throws Exception {
-        int N = G.getSize();
-        File outputTF = new File("outputTFNoV.dat");
-        RandomAccessFile raf = new RandomAccessFile(outputTF, "rw");
-        FileChannel fc = raf.getChannel();
-        MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
-
-        int B = (int)Math.ceil((double)N / M);
-
-        File fileTf = new File("tf.tmp");
-        //RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
-        //FileChannel fcTf = raf.getChannel();
-
-        SuperArray[] buffers = new SuperArray[B];
-        int[] counter = new int[B]; // Counts how many edges per buffer
-
-        int maxIndegree = 10;
-
-        long nBytes = FIELD_SIZE * 2 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
-        for (int i = 0; i < B; ++i) {
-            //buffers[i] = fcTf.map(FileChannel.MapMode.READ_WRITE, i * nBytes, nBytes);
-            //buffers[i] = new MappedFileBuffer(fileTf,0x8000000,true,nBytes);
-            buffers[i] = new SuperArray(nBytes);
-        }
-
-        int currentPeriod = -1;
-        /* Avoid many object creations*/
-        int id;
-        int t;
-        int dist;
-        int period;
-        int d;
-        int maxDistance = 0;
-        int counting =0;
-
-        int e = 0;
-        PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
-        for (int i = 0; i < N; ++i) {
-            if (i % M == 0) {
-                //if(currentPeriod%40 == 0){System.out.println(currentPeriod/(float)B + "%");}
-                ++currentPeriod;
-                Q.clear();
-                if (currentPeriod >= 1){buffers[currentPeriod-1].discard();}
-                SuperArray buf = buffers[currentPeriod];
-                for (int k = 0; k < counter[currentPeriod]; ++k) {
-                    id = buf.getInt();
-                    dist = buf.getInt();
-                    Q.offer(new QueueItem(id, dist));
-                }
-            }
-
-            // Process current vertex
-            maxDistance = 0;
-            while (!Q.isEmpty()) {
-                QueueItem top = Q.peek();
-                if (top.id != i)
-                    break;
-                Q.poll();
-                maxDistance = Math.max(maxDistance, top.distance + 1);
-            }
-
-            distBuffer.putInt(FIELD_SIZE * i, maxDistance);
-
-            // Put information of neighbors in data structure
-            for (int to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
-                //counting++;
-                period = to / M;
-                QueueItem newItem = new QueueItem(to, maxDistance);
-                if (period == currentPeriod) {
-                    Q.offer(newItem);
-                } else {
-                    buffers[period].putInt(to);
-                    buffers[period].putInt(maxDistance);
-                    ++counter[period];
-                }
-            }
-            ++e;
-            //counting++;
-        }
-        fc.close();
-        raf.close();
-        // fcTf.close();
-        // rafTf.close();
-
-        if (fileTf.exists())
-            fileTf.delete();
-    }
-
-
-
 
 
     public static void waterflowTFPIO(IOGraph G, int M) throws IOException {
