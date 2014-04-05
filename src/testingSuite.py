@@ -6,7 +6,7 @@ mValues = [30000,50000,70000]
 
 with open("results.txt","w") as outputFile:
     for n in zip(nValues,fileName):
-        for i in range(2):
+        for i in range(1):
             command = "java -server Main " + str(n[1]) + " " + str(n[0]) + " DPUnsafe"
             print command
             result = subprocess.check_output(command, shell=True)
@@ -15,7 +15,7 @@ with open("results.txt","w") as outputFile:
 
     for n in zip(nValues,fileName):
         for m in mValues:
-            for i in range(2):
+            for i in range(1):
                 command = "java -server Main " + str(n[1]) + " " + str(n[0]) + " TFP " + str(m)
                 print command
                 result = subprocess.check_output(command, shell=True)
