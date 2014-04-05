@@ -51,12 +51,17 @@ public class LongestPath {
 		RandomAccessFile raf = new RandomAccessFile(new File("outputDP.dat"), "rw");
 		FileChannel fc = raf.getChannel();
 	    MappedByteBuffer buffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
+	    
+	    buffer.position(0);
+	    for (int i = 0; i < N; ++i)
+	    	buffer.putInt(0);
+	    buffer.position(0);
 
         int e = 0;
 		for (int i = 0; i < N; ++i) {
+			int distU = buffer.getInt(FIELD_SIZE * i);
+			//System.out.println(i + ": " + distU);
 			for (int to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
-				
-				int distU = buffer.getInt(FIELD_SIZE * i);
 				int distV = buffer.getInt(FIELD_SIZE * to);
 				int newDist = Math.max(distV, distU + 1);
 				buffer.putInt(FIELD_SIZE * to, newDist);
@@ -64,6 +69,7 @@ public class LongestPath {
             ++e;
 		}
 
+		buffer.force();
 		fc.close();
 		raf.close();
 		
@@ -210,13 +216,12 @@ public class LongestPath {
                 Q.poll();
                 maxDistance = Math.max(maxDistance, top.distance + 1);
             }
-            //System.out.println(maxDistance);
+            //System.out.println(i + ": " + maxDistance);
             distBuffer.putInt(FIELD_SIZE * i, maxDistance);
 
             // Put information of neighbors in data structure
             for (int to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
                 int period = to / M;
-                System.out.println(period);
                 QueueItem newItem = new QueueItem(to, maxDistance);
                 if (period == currentPeriod) {
                     Q.offer(newItem);
@@ -228,6 +233,7 @@ public class LongestPath {
             }
             ++e;
         }
+        distBuffer.force();
         fc.close();
 		raf.close();
 		fcTf.close();
