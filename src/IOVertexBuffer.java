@@ -11,7 +11,7 @@ public class IOVertexBuffer {
 	final MappedByteBuffer verticesBuffer;
 	final int size;
 	static final int FIELD_SIZE = 4;
-	static final int NUM_FIELDS = 5;
+	static final int NUM_FIELDS = 1;
     byte[] tempStorage = new byte[FIELD_SIZE*NUM_FIELDS];
 
     int curpos;
@@ -28,39 +28,20 @@ public class IOVertexBuffer {
 	
 	public final void addVertex(IOVertex v) {
 		verticesBuffer.putInt(v.getId());
-		verticesBuffer.putInt(v.getTime());
-		verticesBuffer.putInt(v.getX());
-		verticesBuffer.putInt(v.getY());
-		verticesBuffer.putInt(v.getEdges());
 	}
 
-	/* replaced with potentially faster version
+	/* replaced with potentially faster version*/
 	public final IOVertex getVertexAt(int id) {
-		this.curpos = verticesBuffer.position();
+		verticesBuffer.mark();
 		this.pos = NUM_FIELDS * FIELD_SIZE * id;
 		
 		verticesBuffer.position(pos);
 		this.vid = verticesBuffer.getInt();
-		this.time = verticesBuffer.getInt();
-		this.x = verticesBuffer.getInt();
-		this.y = verticesBuffer.getInt();
-		this.edges = verticesBuffer.getInt();
-		verticesBuffer.position(curpos);
+		verticesBuffer.reset();
 		
-		return new IOVertex(vid, time, x, y, edges);
-	}*/
-    public final IOVertex getVertexAt(int id) {
-        verticesBuffer.mark();
-        verticesBuffer.position(NUM_FIELDS * FIELD_SIZE * id);
-        verticesBuffer.get(tempStorage);
-        verticesBuffer.reset();
-        return new IOVertex(/*vid*/tempStorage[0] << 24 | tempStorage[1] << 16 | tempStorage[2] << 8 | tempStorage[3],
-                            /*time*/tempStorage[4] << 24 | tempStorage[5] << 16 | tempStorage[6] << 8 | tempStorage[7],
-                             /*x*/tempStorage[8] << 24 | tempStorage[9] << 16 | tempStorage[10] << 8 | tempStorage[11],
-                             /*y*/tempStorage[12] << 24 | tempStorage[13] << 16 | tempStorage[14] << 8 | tempStorage[15],
-                             /*edges*/tempStorage[16] << 24 | tempStorage[17] << 16 | tempStorage[18] << 8 | tempStorage[19]);
-    }
-	
+		return new IOVertex(vid);
+	}
+
 	public void close() throws IOException {
 		verticesFileChannel.close();
         rafVertices.close();
@@ -72,20 +53,6 @@ public class IOVertexBuffer {
 	
 	public final int getSize() {
 		return this.size;
-	}
-	
-	public final void setEdgesAt(int id, int edgesLocal) {
-        verticesBuffer.mark();
-        this.pos = NUM_FIELDS * FIELD_SIZE * id + FIELD_SIZE * (NUM_FIELDS - 1);
-		verticesBuffer.putInt(pos, edgesLocal);
-        verticesBuffer.reset();
-    }
-	
-	public final void setTimeAt(int id, int timeLocal) {
-        verticesBuffer.mark();
-		this.pos = NUM_FIELDS * FIELD_SIZE * id + FIELD_SIZE;
-		verticesBuffer.putInt(pos, timeLocal);
-		verticesBuffer.reset();
 	}
 	
 	public String toString() {

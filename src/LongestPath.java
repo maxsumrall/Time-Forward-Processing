@@ -60,7 +60,7 @@ public class LongestPath {
         int e = 0;
 		for (int i = 0; i < N; ++i) {
 			int distU = buffer.getInt(FIELD_SIZE * i);
-			//System.out.println(i + ": " + distU);
+			System.out.println(i + ": " + distU);
 			for (int to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
 				int distV = buffer.getInt(FIELD_SIZE * to);
 				int newDist = Math.max(distV, distU + 1);
@@ -196,7 +196,7 @@ public class LongestPath {
         for (int i = 0; i < N; ++i) {
             if (i % M == 0) {
                 ++currentPeriod;
-                Q.clear();
+                assert (Q.isEmpty());
                 // Load all contents of file into the queue
                 MappedByteBuffer buf = buffers[currentPeriod];
                 buf.position(0);
@@ -216,7 +216,7 @@ public class LongestPath {
                 Q.poll();
                 maxDistance = Math.max(maxDistance, top.distance + 1);
             }
-            //System.out.println(i + ": " + maxDistance);
+            System.out.println(i + ": " + maxDistance);
             distBuffer.putInt(FIELD_SIZE * i, maxDistance);
 
             // Put information of neighbors in data structure
@@ -279,20 +279,18 @@ public class LongestPath {
         int maxDistance = 0;
         IOVertex v;
         QueueItem newItem;
-        int e;
         int to;
         SuperArray buf;
         QueueItem top;
 
+        int e = 0;
         PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
         for (int i = 0; i < N; ++i) {
-
-            IOVertex u = G.getVertices().getVertexAt(i);
-
-            if (u.getTime() % M == 0) {
+            if (i % M == 0) {
                 //if(currentPeriod%40 == 0){System.out.println(currentPeriod/(float)B + "%");}
                 ++currentPeriod;
-                Q.clear();
+                //Q.clear(); should be empty
+                assert Q.isEmpty();
                 if (currentPeriod >= 1){buffers[currentPeriod-1].discard();}
                 buf = buffers[currentPeriod];
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
@@ -307,29 +305,27 @@ public class LongestPath {
             maxDistance = 0;
             while (!Q.isEmpty()) {
                 top = Q.peek();
-                if (top.id != u.getTime())
+                if (top.id != i)
                     break;
                 Q.poll();
                 maxDistance = Math.max(maxDistance, top.distance + 1);
             }
 
-            distBuffer.putInt(FIELD_SIZE * u.getId(), maxDistance);
+            distBuffer.putInt(FIELD_SIZE * i, maxDistance);
 
             // Put information of neighbors in data structure
-            for (e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
-                v = G.getVertices().getVertexAt(to);
-                period = v.getTime() / M;
-                d = distBuffer.getInt(FIELD_SIZE * u.getId());
-                newItem = new QueueItem(to, d);
+            for (to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
+                period = to/ M;
+                newItem = new QueueItem(to, maxDistance);
                 if (period == currentPeriod) {
                     Q.offer(newItem);
                 } else {
                     buffers[period].putInt(to);
-                    buffers[period].putInt(v.getTime());
-                    buffers[period].putInt(d);
+                    buffers[period].putInt(maxDistance);
                     ++counter[period];
                 }
             }
+            ++e;
         }
         fc.close();
         raf.close();
@@ -359,7 +355,7 @@ public class LongestPath {
 
         int maxIndegree = 10;
 
-        long nBytes = FIELD_SIZE * 3 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
+        long nBytes = FIELD_SIZE * 2 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
         for (int i = 0; i < B; ++i) {
             //buffers[i] = fcTf.map(FileChannel.MapMode.READ_WRITE, i * nBytes, nBytes);
             //buffers[i] = new MappedFileBuffer(fileTf,0x8000000,true,nBytes);
@@ -376,10 +372,9 @@ public class LongestPath {
         int maxDistance = 0;
         int counting =0;
 
+        int e = 0;
         PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
         for (int i = 0; i < N; ++i) {
-
-            //IOVertex u = G.getVertices().getVertexAt(i);
             if (i % M == 0) {
                 //if(currentPeriod%40 == 0){System.out.println(currentPeriod/(float)B + "%");}
                 ++currentPeriod;
@@ -388,7 +383,6 @@ public class LongestPath {
                 SuperArray buf = buffers[currentPeriod];
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
                     id = buf.getInt();
-                    t = buf.getInt();
                     dist = buf.getInt();
                     Q.offer(new QueueItem(id, dist));
                 }
@@ -407,22 +401,20 @@ public class LongestPath {
             distBuffer.putInt(FIELD_SIZE * i, maxDistance);
 
             // Put information of neighbors in data structure
-            for (int e = counting, to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
-                counting++;
-                IOVertex v = G.getVertices().getVertexAt(to);
-                period = v.getTime() / M;
-                d = distBuffer.getInt(FIELD_SIZE * i);
-                QueueItem newItem = new QueueItem(to, d);
+            for (int to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
+                //counting++;
+                period = to / M;
+                QueueItem newItem = new QueueItem(to, maxDistance);
                 if (period == currentPeriod) {
                     Q.offer(newItem);
                 } else {
                     buffers[period].putInt(to);
-                    buffers[period].putInt(v.getTime());
-                    buffers[period].putInt(d);
+                    buffers[period].putInt(maxDistance);
                     ++counter[period];
                 }
             }
-            counting++;
+            ++e;
+            //counting++;
         }
         fc.close();
         raf.close();
@@ -462,7 +454,7 @@ public class LongestPath {
 
         int maxIndegree = 10;
 
-        int nBytes = FIELD_SIZE * 3 * maxIndegree * M; // 4 bytes * <id, time, dist> * max_indegree * M
+        int nBytes = FIELD_SIZE * 2 * maxIndegree * M; // 4 bytes * <id, dist> * max_indegree * M
         for (int i = 0; i < B; ++i) {
             // starting position for each buffer in the file is i*nBytes
             buffers[i] = fcTf.map(FileChannel.MapMode.READ_WRITE, i * nBytes, nBytes);
@@ -470,21 +462,19 @@ public class LongestPath {
 
         int currentPeriod = -1;
 
+        int e = 0;
+        int e2 = 0;
         PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
         for (int i = 0; i < N; ++i) {
-            IOVertex u = G.getVertices().getVertexAt(i);
-
             // If this vertex if the first of a new period...
-            if (u.getTime() % M == 0) {
+            if (i % M == 0) {
                 ++currentPeriod;
-                System.out.println(u.getTime() + " " + currentPeriod);
                 Q.clear();
                 // Load all contents of file into the queue
                 MappedByteBuffer buf = buffers[currentPeriod];
                 buf.position(0);
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
                     int id = buf.getInt();
-                    int t = buf.getInt();
                     int dist = buf.getInt();
                     Q.offer(new QueueItem(id, dist));
                 }
@@ -494,39 +484,38 @@ public class LongestPath {
             int maxDistance = 1000;
             while (!Q.isEmpty()) {
                 QueueItem top = Q.peek();
-                if (top.id != u.getTime())
+                if (top.id != i)
                     break;
                 Q.poll();
                 maxDistance += top.distance;
             }
 
-            distBuffer.putInt(FIELD_SIZE * u.getId(), maxDistance);
+            distBuffer.putInt(FIELD_SIZE * i, maxDistance);
 
             // Put information of neighbors in data structure
             int magic = 0;
-            for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
+            for (int to = 0; (to = G.getEdges().getEdge(e2)) != -1; ++e2) {
                 magic++;
             }
+            ++e2;
 
 
-
-            for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
-                IOVertex v = G.getVertices().getVertexAt(to);
-                int period = v.getTime() / M;
-                int d = distBuffer.getInt(FIELD_SIZE * u.getId());
-                QueueItem newItem = new QueueItem(to, d/magic);
-                distWater.putInt(u.getId());
+            for (int to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
+                int period = to / M;
+                QueueItem newItem = new QueueItem(to, maxDistance/magic);
+                distWater.putInt(i);
                 distWater.putInt(to);
-                distWater.putInt(d/magic);
+                distWater.putInt(maxDistance/magic);
                 if (period == currentPeriod) {
                     Q.offer(newItem);
                 } else {
                     buffers[period].putInt(3 * FIELD_SIZE * counter[period], to);
-                    buffers[period].putInt(3 * FIELD_SIZE * counter[period] + FIELD_SIZE, v.getTime());
-                    buffers[period].putInt(3 * FIELD_SIZE * counter[period] + 2 * FIELD_SIZE, d/magic);
+                    buffers[period].putInt(3 * FIELD_SIZE * counter[period] + FIELD_SIZE, to);
+                    buffers[period].putInt(3 * FIELD_SIZE * counter[period] + 2 * FIELD_SIZE, maxDistance/magic);
                     ++counter[period];
                 }
             }
+            ++e;
         }
         File output = new File("water.txt");
         FileWriter fw = new FileWriter(output);

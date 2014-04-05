@@ -63,8 +63,10 @@ public class TopologicalSorting {
 	 * @return Graph with the vertices in topological order, and edges also ordered
 	 * the same as the vertices.
 	 */
-	public static IOGraph IOTopologicalSortBFS(IOVertexBuffer vertices, IOEdgesBuffer edges, int N, String fileName) throws Exception{
+	public static IOGraph IOTopologicalSortBFS(int N, String fileName) throws Exception{
     	
+		IOEdgesBuffer edges = new IOEdgesBuffer(N, fileName+".TempEdges");
+		
 		// Buffer that will contain the indegree for each vertex allocated with N integers
 		File indegreeFile = new File("indegree.tmp");
     	RandomAccessFile RAFile = new RandomAccessFile(indegreeFile,"rw");
@@ -131,11 +133,12 @@ public class TopologicalSorting {
         	System.out.println(originBuffer.getInt() + ", " + originBuffer.getInt());
         originBuffer.position(0);*/
         
-        File tmpFile = new File("vertices.tmp");
-        RandomAccessFile tempRAFile = new RandomAccessFile(tmpFile,"rw");
+        File tempFile = new File("vertices.tmp");
+        RandomAccessFile tempRAFile = new RandomAccessFile(tempFile,"rw");
         FileChannel tempFileChannel = tempRAFile.getChannel();
         // 4 bytes * <origin, destination> * (3N)
         MappedByteBuffer tempBuffer = tempFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 2 * 4 * N);
+    	//SuperArray tempBuffer = new SuperArray(2*N);
 
     	int pointer = 0;
     	prev = -1;
@@ -150,14 +153,18 @@ public class TopologicalSorting {
         	// If this is the first edge of current vertex...
         	if (prev != u) {
         		if (prev >= 0) {
+        			edges.addEdge(-1);
+    				++pointer;
         			// If a vertex doesn't have outgoing edges, put NULL in edge list
-        			for (int j = prev; j < u; ++j) {
+        			for (int j = prev + 1; j < u; ++j) {
+        				//System.out.println("vertex " + j + ": " + pointer);
+        				tempBuffer.putInt(2 * 4 * j + 4, pointer);
         				edges.addEdge(-1);
         				++pointer;
         			}
         		}
         		// Set the pointer to the index of first edge in the edges buffer for the current vertex
-        		vertices.setEdgesAt(u, pointer);
+        		//System.out.println("vertex " + u + ": " + pointer);
         		tempBuffer.putInt(2 * 4 * u + 4, pointer);
         		seen.clear();
         	}
@@ -177,14 +184,17 @@ public class TopologicalSorting {
 		++pointer;
     	for (int j = prev + 1; j < N; ++j) {
     		//System.out.println("pointer = " + pointer);
-    		vertices.setEdgesAt(j, pointer);
+    		//System.out.println("vertex " + j + ": " + pointer);
     		tempBuffer.putInt(2 * 4 * j + 4, pointer);
     		edges.addEdge(-1);
     		++pointer;
     	}
     	
-    	/*System.out.println(vertices);
-    	System.out.println(edges);*/
+    	/*for (int i = 0; i < 2 * N; i += 2)
+    		System.out.println(tempBuffer.getInt(i) + ": " + tempBuffer.getInt(i + 1));*/
+    	
+    	//System.out.println(vertices);
+    	//System.out.println(edges);
     	
     	originFileChannel.close();
         originRAFile.close();
@@ -206,14 +216,13 @@ public class TopologicalSorting {
         pointer = 0;// Pointer to the current position in edge buffer
         while (!Q.isEmpty()) {
             int uid = Q.poll();
-            IOVertex u = vertices.getVertexAt(uid);
             // Store the new position of this vertex in the topological sorting,
             // to map later the old id to the new one
             tempBuffer.putInt(2 * 4 * uid, time);
             
             int e = tempBuffer.getInt(2 * 4 * uid + 4);
             //System.out.println(uid + " " + e);
-            IOVertex v = new IOVertex(time, time, u.getX(), u.getY(), pointer);
+            IOVertex v = new IOVertex(time);
             ++time;
             
             sortedVertices.addVertex(v);
@@ -223,7 +232,7 @@ public class TopologicalSorting {
                 
                 if (d == 0)
                     Q.offer(to);
-
+                //System.out.println("position: " + pointer);
                 sortedEdges.addEdge(to);
                 ++pointer;
             }
@@ -246,18 +255,19 @@ public class TopologicalSorting {
 
         indegreeFileChannel.close();
         RAFile.close();
-
-        tempFileChannel.close();
-        tempRAFile.close();
-        tempBuffer.force();
         
         if (indegreeFile.exists())
         	indegreeFile.delete();
-        if (tmpFile.exists())
-            tmpFile.delete();
+        
+        tempFileChannel.close();
+        tempRAFile.close();
+        
+        if (tempFile.exists())
+        	tempFile.delete();
 
-        /*System.out.println(sortedVertices);
-        System.out.println(sortedEdges);*/
+        edges.delete();
+        //System.out.println(sortedVertices);
+        //System.out.println(sortedEdges);
 
 
         return new IOGraph(N, sortedVertices, sortedEdges);

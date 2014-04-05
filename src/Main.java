@@ -46,17 +46,11 @@ public class Main {
              */
 
             if(args[2].equals("topoSort")){
-                IOEdgesBuffer edges = new IOEdgesBuffer(n, readFileName+".TempEdges");
-                IOVertexBuffer vertices = new IOVertexBuffer(n, readFileName+".TempVertices");
-	                for (int i = 0; i < n; ++i)
-	                    vertices.addVertex(new IOVertex(i, i, 10 * i, 10 * i, -1));
                 long startTime = System.currentTimeMillis();
-                IOGraph G = TopologicalSorting.IOTopologicalSortBFS(vertices,edges, n, readFileName);
+                IOGraph G = TopologicalSorting.IOTopologicalSortBFS(n, readFileName);
                 System.out.println("Topological Sorting RunTime: " + String.valueOf(System.currentTimeMillis() - startTime) + " m/s");
-                edges.delete();
-                vertices.delete();
             }
-            else if(args[2].equals("topoSortWithXY")){
+            /*else if(args[2].equals("topoSortWithXY")){
                 IOEdgesBuffer edges = new IOEdgesBuffer(n, readFileName+".TempEdges");
                 IOVertexBuffer vertices = new IOVertexBuffer(n, readFileName+".TempVertices");
                 File verticesFile = new File("test3000regular-points_min1"); // CHECK FILE NAMES!!!!!
@@ -81,7 +75,7 @@ public class Main {
                 System.out.println("Topological Sorting RunTime: " + String.valueOf(System.currentTimeMillis() - startTime) + " m/s");
                 edges.delete();
                 vertices.delete();
-            }
+            }*/
 
 
             /**
