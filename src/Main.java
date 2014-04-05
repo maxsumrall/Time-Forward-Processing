@@ -114,24 +114,24 @@ public class Main {
                 }
                 /**
                  * Do Experimental TFP, the TFP with some changes to make it fast!
-                 */
+
                 else if (args[2].equals("TFP_Exp")){
                     M = Integer.parseInt(args[3]);
                     long startTime = System.currentTimeMillis();
                     LongestPath.IOLongestPathTimeForwardExperiment(G,M);
                     System.out.println("TFPexperiment: " + String.valueOf(System.currentTimeMillis() - startTime));
 
-                }
+                } */
                 /**
                  * Not using vertices
-                 */
+
                 else if (args[2].equals("TFP_NV")){
                     M = Integer.parseInt(args[3]);
                     long startTime = System.currentTimeMillis();
                     LongestPath.IOLongestPathTimeForwardNoVertices(G,M);
                     System.out.println("TFPNoV: " + String.valueOf(System.currentTimeMillis() - startTime));
 
-                }
+                } */
                 /**
                  * Do Water Flow Calculation!
                  */
