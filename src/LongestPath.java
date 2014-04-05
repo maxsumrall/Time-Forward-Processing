@@ -289,7 +289,7 @@ public class LongestPath {
             if (i % M == 0) {
                 //if(currentPeriod%40 == 0){System.out.println(currentPeriod/(float)B + "%");}
                 ++currentPeriod;
-                //Q.clear(); should be empty
+                Q.clear();
                 assert Q.isEmpty();
                 if (currentPeriod >= 1){buffers[currentPeriod-1].discard();}
                 buf = buffers[currentPeriod];
