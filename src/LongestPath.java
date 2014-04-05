@@ -162,7 +162,7 @@ public class LongestPath {
 	 *
 	 * @param G: topologically sorted graph represented with buffers.
 	 * M: number of vertices per period.
-
+      */
 	public static void IOLongestPathTimeForward(IOGraph G, int M) throws IOException {
 		int N = G.getSize();
 
@@ -242,9 +242,9 @@ public class LongestPath {
 		if (fileTf.exists())
 			fileTf.delete();
 	}
-     */
 
-    public static void IOLongestPathTimeForward(IOGraph G, int M) throws Exception {
+
+    public static void IOLongestPathTimeForwardExp(IOGraph G, int M) throws Exception {
         int N = G.getSize();
         File outputTF = new File("outputTF.dat");
         RandomAccessFile raf = new RandomAccessFile(outputTF, "rw");
@@ -254,10 +254,11 @@ public class LongestPath {
         int B = (int)Math.ceil((double)N / M);
 
         File fileTf = new File("tf.tmp");
-        //RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
-        //FileChannel fcTf = raf.getChannel();
+        RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
+        FileChannel fcTf = raf.getChannel();
 
-        SuperArray[] buffers = new SuperArray[B];
+        //SuperArray[] buffers = new SuperArray[B];
+        MappedFileBuffer[] buffers = new MappedFileBuffer[B];
         int[] counter = new int[B]; // Counts how many edges per buffer
 
         int maxIndegree = 10;
@@ -265,8 +266,8 @@ public class LongestPath {
         long nBytes = FIELD_SIZE * 2 * maxIndegree * M; // 4 bytes * <id, dist> * max_indegree * M
         for (int i = 0; i < B; ++i) {
             //buffers[i] = fcTf.map(FileChannel.MapMode.READ_WRITE, i * nBytes, nBytes);
-            //buffers[i] = new MappedFileBuffer(fileTf,0x8000000,true,nBytes);
-            buffers[i] = new SuperArray(nBytes);
+            buffers[i] = new MappedFileBuffer(fileTf,0x8000000,true,nBytes);
+            //buffers[i] = new SuperArray(nBytes);
         }
 
         int currentPeriod = -1;
@@ -280,7 +281,8 @@ public class LongestPath {
         IOVertex v;
         QueueItem newItem;
         int to;
-        SuperArray buf;
+        //SuperArray buf;
+        MappedFileBuffer buf;
         QueueItem top;
 
         int e = 0;
@@ -290,12 +292,12 @@ public class LongestPath {
                 ++currentPeriod;
                 assert Q.isEmpty();
                 Q.clear();
-                if (currentPeriod >= 1){buffers[currentPeriod-1].discard();}
+                //if (currentPeriod >= 1){buffers[currentPeriod-1].discard();}
                 buf = buffers[currentPeriod];
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
-                    id = buf.getInt();
-                    dist = buf.getInt();
-                    Q.offer(new QueueItem(id, dist));
+                    //id = buf.getInt();
+                    //dist = buf.getInt();
+                   // Q.offer(new QueueItem(id, dist));
                 }
             }
 
@@ -318,8 +320,8 @@ public class LongestPath {
                 if (period == currentPeriod) {
                     Q.offer(newItem);
                 } else {
-                    buffers[period].putInt(to);
-                    buffers[period].putInt(maxDistance);
+                    //buffers[period].putInt(to);
+                    //buffers[period].putInt(maxDistance);
                     ++counter[period];
                 }
             }
