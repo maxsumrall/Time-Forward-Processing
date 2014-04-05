@@ -60,7 +60,7 @@ public class LongestPath {
         int e = 0;
 		for (int i = 0; i < N; ++i) {
 			int distU = buffer.getInt(FIELD_SIZE * i);
-			System.out.println(i + ": " + distU);
+			//System.out.println(i + ": " + distU);
 			for (int to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
 				int distV = buffer.getInt(FIELD_SIZE * to);
 				int newDist = Math.max(distV, distU + 1);
@@ -216,7 +216,7 @@ public class LongestPath {
                 Q.poll();
                 maxDistance = Math.max(maxDistance, top.distance + 1);
             }
-            System.out.println(i + ": " + maxDistance);
+            //System.out.println(i + ": " + maxDistance);
             distBuffer.putInt(FIELD_SIZE * i, maxDistance);
 
             // Put information of neighbors in data structure
