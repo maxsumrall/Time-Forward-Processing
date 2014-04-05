@@ -16,7 +16,7 @@ with open("results.txt","w") as outputFile:
     for n in zip(nValues,fileName):
         for m in mValues:
             for i in range(2):
-                command = "java -server Main " + str(n[1]) + " " + str(n[0]) + " TFP" + str(m)
+                command = "java -server Main " + str(n[1]) + " " + str(n[0]) + " TFP " + str(m)
                 print command
                 result = subprocess.check_output(command, shell=True)
                 print "\t " + result
