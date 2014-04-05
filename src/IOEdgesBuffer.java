@@ -29,8 +29,7 @@ public class IOEdgesBuffer {
 	
 	final int getEdge(int position) {
 		this.curpos = edgesBuffer.position();
-		this.pos = position * FIELD_SIZE;
-		this.to = edgesBuffer.getInt(pos);
+		this.to = edgesBuffer.getInt(position * FIELD_SIZE);
 		edgesBuffer.position(curpos);
 		return this.to;
 	}
