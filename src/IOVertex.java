@@ -1,6 +1,6 @@
 
 public class IOVertex {
-	private int id, time, x, y, edges;
+	public int id, time, x, y, edges;
 	
 	public IOVertex(int id, int time, int x, int y, int edges) {
 		this.id = id;

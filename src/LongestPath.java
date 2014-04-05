@@ -271,6 +271,12 @@ public class LongestPath {
         int period;
         int d;
         int maxDistance = 0;
+        IOVertex v;
+        QueueItem newItem;
+        int e;
+        int to;
+        SuperArray buf;
+        QueueItem top;
 
         PriorityQueue<QueueItem> Q = new PriorityQueue<QueueItem>();
         for (int i = 0; i < N; ++i) {
@@ -282,7 +288,7 @@ public class LongestPath {
                 ++currentPeriod;
                 Q.clear();
                 if (currentPeriod >= 1){buffers[currentPeriod-1].discard();}
-                SuperArray buf = buffers[currentPeriod];
+                buf = buffers[currentPeriod];
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
                     id = buf.getInt();
                     t = buf.getInt();
@@ -294,7 +300,7 @@ public class LongestPath {
             // Process current vertex
             maxDistance = 0;
             while (!Q.isEmpty()) {
-                QueueItem top = Q.peek();
+                top = Q.peek();
                 if (top.id != u.getTime())
                     break;
                 Q.poll();
@@ -304,11 +310,11 @@ public class LongestPath {
             distBuffer.putInt(FIELD_SIZE * u.getId(), maxDistance);
 
             // Put information of neighbors in data structure
-            for (int e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
-                IOVertex v = G.getVertices().getVertexAt(to);
+            for (e = u.getEdges(), to = 0; e >= 0 && (to = G.getEdges().getEdge(e)) != -1; ++e) {
+                v = G.getVertices().getVertexAt(to);
                 period = v.getTime() / M;
                 d = distBuffer.getInt(FIELD_SIZE * u.getId());
-                QueueItem newItem = new QueueItem(to, d);
+                newItem = new QueueItem(to, d);
                 if (period == currentPeriod) {
                     Q.offer(newItem);
                 } else {
