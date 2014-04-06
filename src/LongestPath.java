@@ -28,7 +28,7 @@ public class LongestPath {
 	 * @param G: object representation of the graph
 	 * @return
 	 */
-	public static int[] LongestPathDP(Graph G) {
+	/*public static int[] LongestPathDP(Graph G) {
 		ArrayList<Vertex> topsort = TopologicalSorting.TopologicalSortBFS(G);
 
 		int[] dist = new int[G.getSize()];
@@ -40,7 +40,7 @@ public class LongestPath {
 
 		return dist;
 	}
-
+     */
 	/**
 	 * The graph is assumed to be in topological order.
 	 * 
