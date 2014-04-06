@@ -1,7 +1,7 @@
 import subprocess
 
-nValues = [1500000, 3000000, 6000000,20000000]
-fileName = ["randomEdges1M","randomEdges3M","randomEdges6M","randomEdges20M"]
+nValues = [1500000, 3000000, 6000000]
+fileName = ["randomEdges1M","randomEdges3M","randomEdges6M"]
 mValues = [30000,50000,70000]
 
 with open("results.txt","w") as outputFile:
