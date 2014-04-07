@@ -92,14 +92,8 @@ public class Main {
                  */
                 if(args[2].equals("DP")){
                     long startTime = System.currentTimeMillis();
-                    LongestPath.IOLongestPathDP(G);
-                    System.out.println("DP: " + String.valueOf(System.currentTimeMillis() - startTime));
-
-                }
-                else if(args[2].equals("DPUnsafe")){
-                    long startTime = System.currentTimeMillis();
                     LongestPath.IOLongestPathDPUnsafe(G);
-                    System.out.println("DPUnsafe: " + String.valueOf(System.currentTimeMillis() - startTime));
+                    System.out.println("DP: " + String.valueOf(System.currentTimeMillis() - startTime));
 
                 }
                 /**

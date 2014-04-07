@@ -20,7 +20,6 @@ public class TopologicalSorting {
      * @param G: Object representation of the graph
      * @return
      */
-    /*
     public static boolean fancyData = false;
 
 	public static ArrayList<Vertex> TopologicalSortBFS(Graph G) {
@@ -54,7 +53,7 @@ public class TopologicalSorting {
 		
 		return topsort;
 	}
-     */
+
 	/**
 	 * I/O efficient implementation of topological sorting, based on the same approach as 
 	 * above version. Used MappedByteBuffers on top of random access files to manage the
@@ -91,29 +90,20 @@ public class TopologicalSorting {
     	int prev = -1;
     	// If there are repeated edges, don't count them twice
     	HashSet<Integer> seen = new HashSet<Integer>();
-    	//int maxIndegree = 0; // Just to see what the max indegree is
+    	int maxIndegree = 0; // Just to see what the max indegree is
     	destBuffer.position(0);
-        byte[] uAndV = new byte[8];
-        int u;
-        int v;
-        int d;
-        int bufferRemaining = destBuffer.remaining();
-        while (bufferRemaining > 0) { //for each vertex
-        	//int u = destBuffer.getInt(); destBufferRemaining -= 4;
-        	//int v = destBuffer.getInt(); destBufferRemaining -= 4;
-            destBuffer.get(uAndV);
-            bufferRemaining -= 8;
-            u = (uAndV[0] & 0xFF) << 24 | (uAndV[1] & 0xFF) << 16 | (uAndV[2] & 0xFF) << 8 | (uAndV[3] & 0xFF);
-            v = (uAndV[4] & 0xFF) << 24 | (uAndV[5] & 0xFF) << 16 | (uAndV[6] & 0xFF) << 8 | (uAndV[7] & 0xFF);
+        while (destBuffer.hasRemaining()) { //for each vertex
+        	int u = destBuffer.getInt();
+        	int v = destBuffer.getInt();
         	if (u == 0 && v == 0) break;
         	
         	if (v != prev)
         		seen.clear();
     		if (!seen.contains(u)) {
-	            d = indegreeBuffer.getInt(4 * v);
+	            int d = indegreeBuffer.getInt(4 * v);
 	            indegreeBuffer.putInt(4 * v, d + 1);
 	            seen.add(u);
-	            //maxIndegree = Math.max(maxIndegree, d + 1);
+	            maxIndegree = Math.max(maxIndegree, d + 1);
     		}
             
             prev = v;
@@ -144,14 +134,9 @@ public class TopologicalSorting {
     	// If there are repeated edges, don't store them twice
     	seen = new HashSet<Integer>();
     	originBuffer.position(0);
-        bufferRemaining = originBuffer.remaining();
-    	while (bufferRemaining > 0) {
-    		//int u = originBuffer.getInt();
-        	//int v = originBuffer.getInt();
-            originBuffer.get(uAndV);
-            bufferRemaining -= 8;
-            u = (uAndV[0] & 0xFF) << 24 | (uAndV[1] & 0xFF) << 16 | (uAndV[2] & 0xFF) << 8 | (uAndV[3] & 0xFF);
-            v = (uAndV[4] & 0xFF) << 24 | (uAndV[5] & 0xFF) << 16 | (uAndV[6] & 0xFF) << 8 | (uAndV[7] & 0xFF);
+    	while (originBuffer.hasRemaining()) {
+    		int u = originBuffer.getInt();
+        	int v = originBuffer.getInt();
         	if (u == 0 && v == 0) break;
         	
         	// If this is the first edge of current vertex...
@@ -206,34 +191,32 @@ public class TopologicalSorting {
         // Run the actual topological sorting algorithm
         IOVertexBuffer sortedVertices = new IOVertexBuffer(N, fileName + ".TopoVertices");
         IOEdgesBuffer sortedEdges = new IOEdgesBuffer(N, fileName + ".TopoEdges");
+
         Queue<Integer> Q = new LinkedList<Integer>();
                 
         /*this loop gathers all the vertices which have 0 arriving edges to it and puts it in a queue*/
         for (int i = 0; i < N; ++i) {
-            d = indegreeBuffer.getInt(4 * i);
+            int d = indegreeBuffer.getInt(4 * i);
             if (d == 0)
             	Q.offer(i);
         }
 
         int time = 0;// Index of vertex in topological sorting
         pointer = 0;// Pointer to the current position in edge buffer
-        IOVertex vertex;
-        int to;
-        int e;
         while (!Q.isEmpty()) {
             int uid = Q.poll();
             // Store the new position of this vertex in the topological sorting,
             // to map later the old id to the new one
             tempBuffer.putInt(2 * 4 * uid, time);
             
-            e = tempBuffer.getInt(2 * 4 * uid + 4);
+            int e = tempBuffer.getInt(2 * 4 * uid + 4);
             //System.out.println(uid + " " + e);
-            vertex = new IOVertex(time);
+            IOVertex v = new IOVertex(time);
             ++time;
             
-            sortedVertices.addVertex(vertex);
-            for (to = 0; (to = edges.getEdge(e)) != -1; ++e) {
-                d = indegreeBuffer.getInt(4 * to);
+            sortedVertices.addVertex(v);
+            for (int to = 0; (to = edges.getEdge(e)) != -1; ++e) {
+                int d = indegreeBuffer.getInt(4 * to);
                 indegreeBuffer.putInt(4 * to, --d);
                 
                 if (d == 0)
@@ -251,12 +234,11 @@ public class TopologicalSorting {
         MappedByteBuffer edgesTmp = sortedEdges.edgesBuffer;
         edgesTmp.position(0);
         int ind = 0;
-        int newid;
         while (edgesTmp.hasRemaining()) {
-        	to = edgesTmp.getInt();
+        	int to = edgesTmp.getInt();
         	++ind;
         	if (to < 0 || to >= N) continue;
-        	newid = tempBuffer.getInt(2 * 4 * to);
+        	int newid = tempBuffer.getInt(2 * 4 * to);
         	edgesTmp.putInt(4 * (ind - 1), newid);
         }
 
@@ -266,11 +248,11 @@ public class TopologicalSorting {
         if (indegreeFile.exists())
         	indegreeFile.delete();
         
-        //tempFileChannel.close();
-        //tempRAFile.close();
+        tempFileChannel.close();
+        tempRAFile.close();
         
-        //if (tempFile.exists())
-        //	tempFile.delete();
+        if (tempFile.exists())
+        	tempFile.delete();
 
         edges.delete();
         //System.out.println(sortedVertices);
