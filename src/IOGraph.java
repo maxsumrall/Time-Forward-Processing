@@ -1,7 +1,4 @@
-import java.io.*;
-import java.util.*;
-import java.nio.*;
-import java.nio.channels.FileChannel;
+import java.io.IOException;
 
 public class IOGraph {
 	IOVertexBuffer vertices;

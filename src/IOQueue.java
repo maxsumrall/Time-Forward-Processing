@@ -1,8 +1,7 @@
+import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.io.File;
-import java.util.*;
 
 /**
  * Created by max on 3/19/14.
