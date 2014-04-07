@@ -7,12 +7,12 @@ import java.nio.channels.FileChannel;
 public class Utility {
     public static void main(String[] args) throws Exception {
         //convertEdgestoBytes(args[0]);
-        //printData(Integer.parseInt(args[0]),args[1]);
+        printData(Integer.parseInt(args[0]),args[1]);
         //convertPointstoBytes(args[0]);
         //printVertices(Integer.parseInt(args[0]),args[1]);
         //printDataX(Integer.parseInt(args[0]),args[1]);
         //testBuffers();
-        printEdgesWith2Vals(Integer.parseInt(args[0]),args[1]);
+        //printEdgesWith2Vals(Integer.parseInt(args[0]),args[1]);
     }
 
 

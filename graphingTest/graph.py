@@ -3,14 +3,16 @@ from matplotlib import pyplot as plt
 import random
 import sys
 ###
-if (len(sys.argv) != 3):
-  print "Usage: \n > python graph.py nodeFileName edgeFileName"
+if (len(sys.argv) != 4):
+  print "Usage: \n > python graph.py nodeFileName edgeFileName mapFile"
   exit()
 ###
 
 G = nx.Graph()
 nodesFile = open(str(sys.argv[1]),"r")
 edgesFile = open(str(sys.argv[2]),"r")
+mapFile = open(str(sys.argv[3]),"r")
+
 minWeight = 100000000 #some high number i picked for init
 maxWeight = 0
 j = 0.3
@@ -21,10 +23,22 @@ while j <= MAXWEIGHT:
   j =  round(j + 0.05,7)
 print weights
 #weights = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+
+mapNodes = {} # dictionary to map old ids to new ones
+# This file can be generated doing:
+#    java Utility 25 test25regular-edges_min1.TopoVertices > vertices.txt
+# with the option: printData() in the main of Utility
+# Format: new_id-1: old_id-1
+for line in mapFile:
+  line = line.split()
+  new_id = int(line[0][:-1]) + 1
+  old_id = int(line[1]) + 1
+  mapNodes[old_id] = new_id
+
 nodes = {} #dict to store nodes with the x,y coords
 for line in nodesFile:
   line = [int(x) for x in line.split()]
-  nodes[line[0]] = [line[1],line[2]] #add node as key, and val is the x,y coord
+  nodes[mapNodes[line[0]]] = [line[1],line[2]] #add node as key, and val is the x,y coord
   G.add_node(line[0])
 
 for line in edgesFile:
