@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 public class LongestPath {
@@ -351,7 +350,7 @@ public class LongestPath {
         MappedByteBuffer[] buffers = new MappedByteBuffer[B];
         int[] counter = new int[B]; // Counts how many edges per buffer
 
-        int maxIndegree = 10;
+        int maxIndegree = 20;
 
         int nBytes = FIELD_SIZE * 2 * maxIndegree * M; // 4 bytes * <id, dist> * max_indegree * M
         for (int i = 0; i < B; ++i) {
@@ -408,9 +407,8 @@ public class LongestPath {
                 if (period == currentPeriod) {
                     Q.offer(newItem);
                 } else {
-                    buffers[period].putInt(3 * FIELD_SIZE * counter[period], to);
-                    buffers[period].putInt(3 * FIELD_SIZE * counter[period] + FIELD_SIZE, to);
-                    buffers[period].putInt(3 * FIELD_SIZE * counter[period] + 2 * FIELD_SIZE, maxDistance/magic);
+                    buffers[period].putInt(2 * FIELD_SIZE * counter[period], to);
+                    buffers[period].putInt(2 * FIELD_SIZE * counter[period] + 1 * FIELD_SIZE, maxDistance/magic);
                     ++counter[period];
                 }
             }
@@ -421,8 +419,8 @@ public class LongestPath {
 
         distWater.position(0);
         while(distWater.hasRemaining()){
-            String outline = (distWater.getInt()) + " " + (distWater.getInt()) + " " + distWater.getInt() + "\n";
-            if(!outline.equals("0 0 0\n")){fw.write(outline);}
+            String outline = (distWater.getInt() + 1) + " " + (distWater.getInt() + 1) + " " + distWater.getInt() + "\n";
+            if(!outline.equals("1 1 0 \n")){fw.write(outline);}
         }
         fw.close();
 
