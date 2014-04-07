@@ -6,13 +6,29 @@ import java.nio.channels.FileChannel;
 
 public class Utility {
     public static void main(String[] args) throws Exception {
-        //convertEdgestoBytes(args[0]);
-        printData(Integer.parseInt(args[0]),args[1]);
-        //convertPointstoBytes(args[0]);
-        //printVertices(Integer.parseInt(args[0]),args[1]);
-        //printDataX(Integer.parseInt(args[0]),args[1]);
-        //testBuffers();
-        //printEdgesWith2Vals(Integer.parseInt(args[0]),args[1]);
+    	String opt = args[0].toLowerCase();
+    	
+    	switch (opt) {
+    	case "ceb":
+    		convertEdgestoBytes(args[1]);
+    		break;
+    	case "pd":
+    		printData(Integer.parseInt(args[1]),args[2]);
+    		break;
+    	case "cpb":
+    		convertPointstoBytes(args[1]);
+    		break;
+    	case "pv":
+    		printVertices(Integer.parseInt(args[1]),args[2]);
+    		break;
+    	case "pdx":
+    		printDataX(Integer.parseInt(args[1]),args[2]);
+    		break;
+    		//testBuffers();
+    	case "pe":
+    		printEdgesWith2Vals(Integer.parseInt(args[1]),args[2]);
+    		break;
+    	}
     }
 
 
@@ -60,7 +76,7 @@ public class Utility {
         for(int j = 0; j < i; j+=4){
             System.out.println(j/4 + ": " + mbb.getInt());
         }
-        System.out.println("-----------");
+        //System.out.println("-----------");
     }
     public static void printDataX(int n, String filenamepart) throws IOException {
         //RandomAccessFile in = new RandomAccessFile(filenamepart + n + ".dat","r");
