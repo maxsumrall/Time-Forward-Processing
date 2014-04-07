@@ -1,7 +1,6 @@
 /**
  * Created by max on 3/13/14.
  */
-import java.util.*;
 
 public class IOEdge implements Comparable<IOEdge> {
     private int to = -1;

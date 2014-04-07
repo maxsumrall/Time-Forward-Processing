@@ -1,6 +1,5 @@
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -211,7 +210,7 @@ public class TopologicalSorting {
             
             int e = tempBuffer.getInt(2 * 4 * uid + 4);
             //System.out.println(uid + " " + e);
-            IOVertex v = new IOVertex(time);
+            IOVertex v = new IOVertex(uid);
             ++time;
             
             sortedVertices.addVertex(v);
