@@ -1,34 +1,50 @@
 
 	public class Heap {
 		
-		private QueueItem[] A;
+		private int[] id;
+		private int[] distance;
 		private int size;
-		private int N;
+		private int N, p, l, r, t, min, i;
+		private int[] ans;
 		
 		public Heap(int _N) {
 			this.size = 0;
 			this.N = _N;
-			A = new QueueItem[N];
+			id = new int[N];
+			distance = new int[N];
+			ans = new int[2];
 		}
 		private void swap(int i, int j) {
-			QueueItem t = A[i];
-			A[i] = A[j];
-			A[j] = t;
+			t = id[i];
+			id[i] = id[j];
+			id[j] = t;
+			
+			t = distance[i];
+			distance[i] = distance[j];
+			distance[j] = t;
 		}
-		public QueueItem minimum() {
-			return A[1];
+		public int[] minimum() {
+			ans[0] = id[1];
+			ans[1] = distance[1];
+			
+			return ans;
 		}
-		public QueueItem extractMin() {
-			QueueItem ans = A[1];
-			A[1] = A[size--];
-			int p = 1;
+		public int[] extractMin() {
+			ans[0] = id[1];
+			ans[1] = distance[1];
+			
+			id[1] = id[size];
+			distance[1] = distance[size];
+			--size;
+			
+			p = 1;
 			while (true) {
-				int min = p;
-				int l = p << 1;
-				int r = l + 1;
-				if (l <= size && A[l].id < A[min].id)
+				min = p;
+				l = p << 1;
+				r = l + 1;
+				if (l <= size && id[l] < id[min])
 					min = l;
-				if (r <= size && A[r].id < A[min].id)
+				if (r <= size && id[r] < id[min])
 					min = r;
 				if (min == p) break;
 				
@@ -37,10 +53,13 @@
 			}
 			return ans;
 		}
-		public void insert(QueueItem x) {
-			A[++size] = x;
-			int i = size;
-			while (i > 1 && A[i >> 1].id > A[i].id) {
+		public void insert(int[] x) {
+			++size;
+			id[size] = x[0];
+			distance[size] = x[1];
+			
+			i = size;
+			while (i > 1 && id[i >> 1] > id[i]) {
 				swap(i, i >> 1);
 				i >>= 1;
 			}

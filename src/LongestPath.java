@@ -344,9 +344,9 @@ public class LongestPath {
         int period;
         int maxDistance = 0;
         int to;
-        QueueItem newItem;
+        int[] newItem = new int[2];
         SuperArray buf;
-        QueueItem top;
+        int[] top = new int[2];
 
         int e = 0;
         Heap Q = new Heap(maxIndegree * M + 5);
@@ -359,7 +359,10 @@ public class LongestPath {
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
                     id = buf.getInt(2 * k);
                     dist = buf.getInt((2 * k) + 1);
-                   Q.insert(new QueueItem(id, dist));
+                    
+                    newItem[0] = id;
+                    newItem[1] = dist;
+                   Q.insert(newItem);
                 }
             }
 
@@ -367,10 +370,10 @@ public class LongestPath {
             maxDistance = 0;
             while (!Q.isEmpty()) {
                 top = Q.minimum();
-                if (top.id != i)
+                if (top[0] != i)
                     break;
                 Q.extractMin();
-                maxDistance = Math.max(maxDistance, top.distance + 1);
+                maxDistance = Math.max(maxDistance, top[1] + 1);
             }
 
             distBuffer.putInt(FIELD_SIZE * i, maxDistance);
@@ -379,7 +382,8 @@ public class LongestPath {
             for (to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
                 period = to / M;
                 if (period == currentPeriod) {
-                    newItem = new QueueItem(to, maxDistance);
+                	newItem[0] = to;
+                	newItem[1] = maxDistance;
                     Q.insert(newItem);
                 } else {
                     buffers[period].putInt(2 * counter[period], to);
