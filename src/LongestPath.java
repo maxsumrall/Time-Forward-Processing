@@ -349,7 +349,7 @@ public class LongestPath {
         QueueItem top;
 
         int e = 0;
-        Heap Q = new Heap(maxIndegree * M);
+        Heap Q = new Heap(2 * maxIndegree * M);
         for (int i = 0; i < N; ++i) {
             if (i % M == 0) {
                 ++currentPeriod;
