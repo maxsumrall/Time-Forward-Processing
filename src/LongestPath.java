@@ -9,18 +9,6 @@ import java.util.PriorityQueue;
 public class LongestPath {
 	
 	static final int FIELD_SIZE = 4; // 4 bytes
-
-	static final class QueueItem implements Comparable<QueueItem> {
-		int id, distance;
-		public QueueItem(int id, int distance) {
-			this.id = id;
-			this.distance = distance;
-		}
-		@Override
-		public int compareTo(QueueItem q) {
-			return this.id - q.id;
-		}
-	}
 	
 	/**
 	 * Non I/O efficient implementation of the dynamic programming algorithm.
@@ -242,7 +230,7 @@ public class LongestPath {
 	}
 
 
-    public static void IOLongestPathTimeForward(IOGraph G, int M) throws Exception {
+    public static void IOLongestPathTimeForwardPQJava(IOGraph G, int M) throws Exception {
         int N = G.getSize();
         File outputTF = new File(N+"."+M+"."+"outputTF.dat");
         RandomAccessFile raf = new RandomAccessFile(outputTF, "rw");
@@ -309,6 +297,89 @@ public class LongestPath {
                 if (period == currentPeriod) {
                     newItem = new QueueItem(to, maxDistance);
                     Q.offer(newItem);
+                } else {
+                    buffers[period].putInt(2 * counter[period], to);
+                    buffers[period].putInt(2 * counter[period] + 1, maxDistance);
+                    ++counter[period];
+                }
+            }
+            ++e;
+        }
+        fc.close();
+        raf.close();
+        //fcTf.close();
+       // rafTf.close();
+
+        if (fileTf.exists())
+            fileTf.delete();
+    }
+    
+    public static void IOLongestPathTimeForward(IOGraph G, int M) throws Exception {
+        int N = G.getSize();
+        File outputTF = new File(N+"."+M+"."+"outputTF.dat");
+        RandomAccessFile raf = new RandomAccessFile(outputTF, "rw");
+        FileChannel fc = raf.getChannel();
+        MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
+
+        int B = (int)Math.ceil((double)N / M);
+
+        File fileTf = new File("tf.tmp");
+        RandomAccessFile rafTf = new RandomAccessFile(fileTf, "rw");
+        FileChannel rafChannel = raf.getChannel();
+
+        SuperArray[] buffers = new SuperArray[B];
+        int[] counter = new int[B]; // Counts how many edges per buffer
+
+        int maxIndegree = 20;
+
+        long nBytes = FIELD_SIZE * 2 * maxIndegree * M; // 4 bytes * <id, dist> * max_indegree * M
+        for (int i = 0; i < B; ++i) {
+            buffers[i] = new SuperArray(nBytes);
+        }
+
+        int currentPeriod = -1;
+        /* Avoid many object creations*/
+        int id;
+        int dist;
+        int period;
+        int maxDistance = 0;
+        int to;
+        QueueItem newItem;
+        SuperArray buf;
+        QueueItem top;
+
+        int e = 0;
+        Heap Q = new Heap(maxIndegree * M);
+        for (int i = 0; i < N; ++i) {
+            if (i % M == 0) {
+                ++currentPeriod;
+                //if (currentPeriod >= 1){buffers[currentPeriod-1].discard();}
+                buf = buffers[currentPeriod];
+                for (int k = 0; k < counter[currentPeriod]; ++k) {
+                    id = buf.getInt(2 * k);
+                    dist = buf.getInt((2 * k) + 1);
+                   Q.insert(new QueueItem(id, dist));
+                }
+            }
+
+            // Process current vertex
+            maxDistance = 0;
+            while (!Q.isEmpty()) {
+                top = Q.minimum();
+                if (top.id != i)
+                    break;
+                Q.extractMin();
+                maxDistance = Math.max(maxDistance, top.distance + 1);
+            }
+
+            distBuffer.putInt(FIELD_SIZE * i, maxDistance);
+
+            // Put information of neighbors in data structure
+            for (to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
+                period = to / M;
+                if (period == currentPeriod) {
+                    newItem = new QueueItem(to, maxDistance);
+                    Q.insert(newItem);
                 } else {
                     buffers[period].putInt(2 * counter[period], to);
                     buffers[period].putInt(2 * counter[period] + 1, maxDistance);
