@@ -25,9 +25,9 @@ public class Benchmark{
         long time = System.currentTimeMillis();
         //File file = new File("trashFile.deleteMe");
         //MappedFileBuffer buff = new MappedFileBuffer(file,50000000,true,n);
-        ByteBuffer buff = ByteBuffer.allocateDirect((int)n);
+        ByteBuffer buff = ByteBuffer.allocateDirect((int)n*4);
         for(int i = 0; i < n; i++){
-            buff.putInt(i,(int)Math.random()*100);
+            buff.putInt((int)Math.random()*100);
         }
         for(int i = 0; i< n; i++){
             buff.getInt(i);
