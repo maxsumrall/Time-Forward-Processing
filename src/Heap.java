@@ -45,6 +45,9 @@
 				i >>= 1;
 			}
 		}
+		public void clear() {
+			this.size = 0;
+		}
 		public int size() {
 			return this.size;
 		}
