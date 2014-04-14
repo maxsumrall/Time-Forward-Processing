@@ -2,10 +2,12 @@
  * Compare speed of Unsafe arrays compared to ByteBuffers
  */
 import java.io.File;
+import java.nio.ByteBuffer;
+
 public class Benchmark{
 
     public static void main(String[] args) throws Exception{
-        long n = 100000000; //100 Million
+        long n = 50000000; //50 Million
 
 
 
@@ -21,8 +23,9 @@ public class Benchmark{
         */
 
         long time = System.currentTimeMillis();
-        File file = new File("trashFile.deleteMe");
-        MappedFileBuffer buff = new MappedFileBuffer(file,50000000,true,n);
+        //File file = new File("trashFile.deleteMe");
+        //MappedFileBuffer buff = new MappedFileBuffer(file,50000000,true,n);
+        ByteBuffer buff = ByteBuffer.allocateDirect((int)n);
         for(int i = 0; i < n; i++){
             buff.putInt(i,(int)Math.random()*100);
         }
