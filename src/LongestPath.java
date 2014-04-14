@@ -282,7 +282,7 @@ public class LongestPath {
             if (i % M == 0) {
                 ++currentPeriod;
                 Q.clear();
-                //if (currentPeriod >= 1){buffers[currentPeriod-1].discard();}
+                if (currentPeriod >= 1){buffers[currentPeriod-1].discard();}
                 buf = buffers[currentPeriod];
                 for (int k = 0; k < counter[currentPeriod]; ++k) {
                     id = buf.getInt(2 * k);
