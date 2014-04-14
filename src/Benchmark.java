@@ -17,7 +17,7 @@ public class Benchmark{
         for(int i = 0; i < n; i++){
             sa.getInt();
         }
-        System.out.println(System.currentTimeMillis() - time);
+        System.out.println("SuperArray: " + (System.currentTimeMillis() - time));
         */
 
         long time = System.currentTimeMillis();
@@ -29,5 +29,7 @@ public class Benchmark{
         for(int i = 0; i< n; i++){
             buff.getInt(i);
         }
+        System.out.println("MappedFileBuffer: " + (System.currentTimeMillis() - time));
+
     }
 }
