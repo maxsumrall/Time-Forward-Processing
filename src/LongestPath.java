@@ -402,7 +402,7 @@ public class LongestPath {
             fileTf.delete();
     }
     
-    public static void IOLongestPathTimeForward(IOGraph G, int M) throws Exception {
+    public static void IOLongestPathTimeForwardNoPQOneArray(IOGraph G, int M) throws Exception {
         int N = G.getSize();
         
         File outputTF = new File(N+"."+M+"."+"outputTF.dat");
@@ -446,6 +446,66 @@ public class LongestPath {
                 } else {
                     bigBuffer.putInt(period * periodSize + 2 * counter[period], to);
                     bigBuffer.putInt(period * periodSize + 2 * counter[period] + 1, maxDistance);
+                    ++counter[period];
+                }
+            }
+            ++e;
+        }
+        fc.close();
+        raf.close();
+    }
+    
+    public static void IOLongestPathTimeForward(IOGraph G, int M) throws Exception {
+        int N = G.getSize();
+        
+        File outputTF = new File(N+"."+M+"."+"outputTF.dat");
+        RandomAccessFile raf = new RandomAccessFile(outputTF, "rw");
+        FileChannel fc = raf.getChannel();
+        MappedByteBuffer distBuffer = fc.map(FileChannel.MapMode.READ_WRITE,0, FIELD_SIZE * N);
+
+        int B = (int)Math.ceil((double)N / M);
+
+        int maxIndegree = 20;
+        long periodSize = 2 * maxIndegree * M;
+        long nBytes = FIELD_SIZE * periodSize; // 4 bytes * <id, dist> * max_indegree * M
+        
+        SuperArray[] buffers = new SuperArray[B];
+        int[] counter = new int[B]; // Counts how many edges per buffer
+
+        for (int i = 0; i < B; ++i) {
+            buffers[i] = new SuperArray(nBytes);
+        }
+
+        int currentPeriod = -1;
+        /* Avoid many object creations*/
+        int id, dist, period, maxDistance, to, distTo;
+        SuperArray buf;
+
+        int e = 0;
+        for (int i = 0; i < N; ++i) {
+            if (i % M == 0) {
+                ++currentPeriod;
+                buf = buffers[currentPeriod];
+                for (int k = 0; k < counter[currentPeriod]; ++k) {
+                    id = buf.getInt(2 * k);
+                    dist = buf.getInt(2 * k + 1);
+                    
+                    distTo = distBuffer.getInt(FIELD_SIZE * id);
+                    distBuffer.putInt(FIELD_SIZE * id, Math.max(distTo, dist + 1));
+                }
+            }
+            
+            maxDistance = distBuffer.getInt(FIELD_SIZE * i);
+            
+            // Put information of neighbors in data structure
+            for (to = 0; (to = G.getEdges().getEdge(e)) != -1; ++e) {
+                period = to / M;
+                if (period == currentPeriod) {
+                	distTo = distBuffer.getInt(FIELD_SIZE * to);
+                	distBuffer.putInt(FIELD_SIZE * to, Math.max(distTo, maxDistance + 1));
+                } else {
+                	buffers[period].putInt(2 * counter[period], to);
+                	buffers[period].putInt(2 * counter[period] + 1, maxDistance);
                     ++counter[period];
                 }
             }
