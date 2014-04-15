@@ -21,7 +21,7 @@ public class TopologicalSorting {
      */
     public static boolean fancyData = false;
 
-	public static ArrayList<Vertex> TopologicalSortBFS(Graph G) {
+	/*public static ArrayList<Vertex> TopologicalSortBFS(Graph G) {
 		int N = G.getSize();
 		Queue<Vertex> Q = new LinkedList<Vertex>();
 		
@@ -51,7 +51,7 @@ public class TopologicalSorting {
 		}
 		
 		return topsort;
-	}
+	}*/
 
 	/**
 	 * I/O efficient implementation of topological sorting, based on the same approach as 
